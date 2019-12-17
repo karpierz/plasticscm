@@ -1,0 +1,19 @@
+# Copyright (c) 2019-2019 Adam Karpierz
+# Licensed under the zlib/libpng License
+# https://opensource.org/licenses/zlib/
+
+include README.rst
+include CHANGES.rst
+include LICENSE
+
+graft docs
+
+graft examples
+
+graft src
+
+graft tests
+exclude tests/_info_.txt tests/_report_.txt
+
+global-exclude .build .build.*
+global-exclude *.py[co] __pycache__
