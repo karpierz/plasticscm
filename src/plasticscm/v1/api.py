@@ -6,6 +6,7 @@ from typing import List, Tuple, Dict, Optional, Union
 from datetime import datetime
 from uuid import UUID
 from pathlib import Path
+import json
 
 from public import public
 from dateutil.parser import isoparse
@@ -40,7 +41,8 @@ class API:
     @REST.GET("/repos")
     def get_repositories(self) -> Tuple[Repository]:
         url, action = self.get_repositories.REST
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Repository(repo) for repo in response.json())
 
     @REST.POST("/repos")
@@ -51,14 +53,16 @@ class API:
         }
         if server is not None:
             params.update({"server": server})
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Repository(response.json())
 
     @REST.GET("/repos/{repo_name}")
     def get_repository(self, repo_name: str) -> Repository:
         url, action = self.get_repository.REST
         url = url.format(repo_name=repo_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Repository(response.json())
 
     @REST.PUT("/repos/{repo_name}")
@@ -68,14 +72,16 @@ class API:
         params = {
             "name": repo_new_name,
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Repository(response.json())
 
     @REST.DELETE("/repos/{repo_name}")
     def delete_repository(self, repo_name: str) -> None:
         url, action = self.delete_repository.REST
         url = url.format(repo_name=repo_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
 
     def __json2Repository(self, repo: Dict):
         return Repository(name=repo["name"],
@@ -94,7 +100,8 @@ class API:
     @REST.GET("/wkspaces")
     def get_workspaces(self) -> Tuple[Workspace]:
         url, action = self.get_workspaces.REST
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Workspace(wkspace) for wkspace in response.json())
 
     @REST.POST("/wkspaces")
@@ -107,14 +114,16 @@ class API:
         }
         if repo_name is not None:
             params.update({"repository": repo_name})
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Workspace(response.json())
 
     @REST.GET("/wkspaces/{wkspace_name}")
     def get_workspace(self, wkspace_name: str) -> Workspace:
         url, action = self.get_workspace.REST
         url = url.format(wkspace_name=wkspace_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Workspace(response.json())
 
     @REST.PATCH("/wkspaces/{wkspace_name}")                   # !!! was: -> Repository:
@@ -124,14 +133,16 @@ class API:
         params = {
             "name": wkspace_new_name,
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Workspace(response.json())
 
     @REST.DELETE("/wkspaces/{wkspace_name}")
     def delete_worskpace(self, wkspace_name: str) -> None:
         url, action = self.delete_worskpace.REST
         url = url.format(wkspace_name=wkspace_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
 
     def __json2Workspace(self, wkspace: Dict):
         return Workspace(name=wkspace["name"],
@@ -148,7 +159,8 @@ class API:
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, params=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Branch(branch) for branch in response.json())
 
     @REST.POST("/repos/{repo_name}/branches")
@@ -166,14 +178,16 @@ class API:
             "origin":     str(origin),
             "topLevel":   top_level,
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Branch(response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}")
     def get_branch(self, repo_name: str, branch_name: str) -> Branch:
         url, action = self.get_branch.REST
         url = url.format(repo_name=repo_name, branch_name=branch_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Branch(response.json())
 
     @REST.PATCH("/repos/{repo_name}/branches/{branch_name}")
@@ -183,14 +197,16 @@ class API:
         params = {
             "name": branch_new_name,
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Branch(response.json())
 
     @REST.DELETE("/repos/{repo_name}/branches/{branch_name}")
     def delete_branch(self, repo_name: str, branch_name: str) -> None:
         url, action = self.delete_branch.REST
         url = url.format(repo_name=repo_name, branch_name=branch_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
 
     def __json2Branch(self, branch: Dict):
         return Branch(# ???
@@ -214,7 +230,8 @@ class API:
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, params=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Label(label) for label in response.json())
 
     @REST.POST("/repos/{repo_name}/labels")
@@ -229,7 +246,8 @@ class API:
         }
         if comment is not None:
             params.update({"comment": comment})
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Label(response.json())
         """
         !!!
@@ -243,7 +261,8 @@ class API:
     def get_label(self, repo_name: str, label_name: str) -> Label:
         url, action = self.get_label.REST
         url = url.format(repo_name=repo_name, label_name=label_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Label(response.json())
 
     @REST.PATCH("/repos/{repo_name}/labels/{label_name}")
@@ -253,14 +272,16 @@ class API:
         params = {
             "name": label_new_name,
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Label(response.json())
 
     @REST.DELETE("/repos/{repo_name}/labels/{label_name}")
     def delete_label(self, repo_name: str, label_name: str) -> None:
         url, action = self.delete_label.REST
         url = url.format(repo_name=repo_name, label_name=label_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
 
     def __json2Label(self, label: Dict):
         return Label(# ???
@@ -284,7 +305,8 @@ class API:
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, params=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Changeset(chset) for chset in response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/changesets")
@@ -295,14 +317,16 @@ class API:
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, params=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Changeset(chset) for chset in response.json())
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}")
     def get_changeset(self, repo_name: str, changeset_id: int) -> Changeset:
         url, action = self.get_changeset.REST
         url = url.format(repo_name=repo_name, changeset_id=changeset_id)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Changeset(response.json())
 
     def __json2Changeset(self, chset: Dict):
@@ -327,22 +351,19 @@ class API:
         params = {
             "types": ",".join(chtype.value for chtype in change_types),
         }
-        response = action(self.__api_url + url, params=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, params=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Change(change) for change in response.json())
 
-    #@REST.DELETE("/wkspaces/{wkspace_name}/changes")
-    @REST.POST("/wkspaces/{wkspace_name}/changes")
+    @REST.DELETE("/wkspaces/{wkspace_name}/changes")
     def undo_pending_changes(self, wkspace_name: str, paths: List[Path]) -> AffectedPaths:
         url, action = self.undo_pending_changes.REST
         url = url.format(wkspace_name=wkspace_name)
         params = {
             "paths": [str(path) for path in paths],
         }
-        """
-        !!!
-        response = requests.delete(self.__api_url + url, json.dumps(params))
-        """
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, json=json.dumps(params),
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2AffectedPaths(response.json())
 
     def __json2Change(self, change: Dict):
@@ -381,21 +402,24 @@ class API:
     def get_workspace_update_status(self, wkspace_name: str) -> OperationStatus:
         url, action = self.get_workspace_update_status.REST
         url = url.format(wkspace_name=wkspace_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2OperationStatus(response.json())
 
     @REST.POST("/wkspaces/{wkspace_name}/update")
     def update_workspace(self, wkspace_name: str) -> OperationStatus:
         url, action = self.update_workspace.REST
         url = url.format(wkspace_name=wkspace_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2OperationStatus(response.json())
 
     @REST.GET("/wkspaces/{wkspace_name}/switch")
     def get_workspace_switch_status(self, wkspace_name: str) -> OperationStatus:
         url, action = self.get_workspace_switch_status.REST
         url = url.format(wkspace_name=wkspace_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2OperationStatus(response.json())
 
     @REST.POST("/wkspaces/{wkspace_name}/switch")
@@ -408,7 +432,8 @@ class API:
             "objectType": object_type.value,
             "object":     str(object),
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2OperationStatus(response.json())
 
     def __json2OperationStatus(self, stat: Dict):
@@ -425,7 +450,8 @@ class API:
     def get_workspace_checkin_status(self, wkspace_name: str) -> CheckinStatus:
         url, action = self.get_workspace_checkin_status.REST
         url = url.format(wkspace_name=wkspace_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2CheckinStatus(response.json())
 
     @REST.POST("/wkspaces/{wkspace_name}/checkin")
@@ -442,7 +468,8 @@ class API:
             params.update({"paths": paths})
         if comment is not None:
             params.update({"comment": comment})
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2CheckinStatus(response.json())
 
     def __json2CheckinStatus(self, stat: Dict):
@@ -458,7 +485,8 @@ class API:
         url, action = self.getItemInRepository.REST
         url = url.format(repo_name=repo_name,
                          item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/contents/{item_path}")
@@ -467,7 +495,8 @@ class API:
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name,
                          item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/contents/{item_path}")
@@ -476,7 +505,8 @@ class API:
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
                          item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
 
     @REST.GET("/repos/{repo_name}/labels/{label_name}/contents/{item_path}")
@@ -485,7 +515,8 @@ class API:
         url = url.format(repo_name=repo_name,
                          label_name=label_name,
                          item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/history/{item_path}")
@@ -494,7 +525,8 @@ class API:
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name,
                          item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Item(item) for item in response.json())
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/history/{item_path}")
@@ -503,7 +535,8 @@ class API:
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
                          item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Item(item) for item in response.json())
 
     @REST.GET("/repos/{repo_name}/labels/{label_name}/history/{item_path}")
@@ -512,7 +545,8 @@ class API:
         url = url.format(repo_name=repo_name,
                          label_name=label_name,
                          item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Item(item) for item in response.json())
 
     def __json2Item(self, item: Dict):
@@ -544,7 +578,8 @@ class API:
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
                          source_changeset_id=source_changeset_id)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Diff(diff) for diff in response.json())
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/diff")
@@ -552,14 +587,16 @@ class API:
         url, action = self.diff_changeset.REST
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Diff(diff) for diff in response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/diff")
     def diff_branch(self, repo_name: str, branch_name: str) -> Tuple[Diff]:
         url, action = self.diff_branch.REST
         url = url.format(repo_name=repo_name, branch_name=branch_name)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Diff(diff) for diff in response.json())
 
     def __json2Diff(self, diff: Dict):
@@ -614,14 +651,16 @@ class API:
             "checkoutParent":    checkout_parent,
             "recurse":           recurse,
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2AffectedPaths(response.json())
 
     @REST.PUT("/wkspaces/{wkspace_name}/content/{item_path}")
     def checkout_workspace_item(self, wkspace_name: str, item_path: str) -> AffectedPaths:
         url, action = self.checkout_workspace_item.REST
         url = url.format(wkspace_name=wkspace_name, item_path=item_path)
-        response = action(self.__api_url + url, verify=self.__ssl_verify)
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2AffectedPaths(response.json())
 
     @REST.PATCH("/wkspaces/{wkspace_name}/content/{item_path}")
@@ -632,7 +671,8 @@ class API:
         params = {
             "destination": dest_item_path,
         }
-        response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
+        response = action(self.__api_url + url, data=params,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2AffectedPaths(response.json())
 
     def __json2AffectedPaths(self, paths: Dict):
