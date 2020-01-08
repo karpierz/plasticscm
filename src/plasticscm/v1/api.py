@@ -138,8 +138,8 @@ class API:
         return self.__json2Workspace(response.json())
 
     @REST.DELETE("/wkspaces/{wkspace_name}")
-    def delete_worskpace(self, wkspace_name: str) -> None:
-        url, action = self.delete_worskpace.REST
+    def delete_workspace(self, wkspace_name: str) -> None:
+        url, action = self.delete_workspace.REST
         url = url.format(wkspace_name=wkspace_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)

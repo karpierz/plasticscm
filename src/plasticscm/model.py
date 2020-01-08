@@ -60,7 +60,7 @@ class RevisionInfo:
 
 @public
 class Change:
-    """PlasticSCM's changes in worskpace"""
+    """PlasticSCM's changes in workspace"""
 
     @enum.unique
     class Type(enum.Enum):

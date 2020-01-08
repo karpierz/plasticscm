@@ -170,7 +170,7 @@
             },
         ],
 
-        "delete_worskpace": [ # -> None
+        "delete_workspace": [ # -> None
             {
                 "args": {"wkspace_name": "my_wk"},
                 "expected": {

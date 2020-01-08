@@ -187,13 +187,13 @@ class Plastic:
         """
         return self.__api.rename_workspace(wkspace_name, wkspace_new_name)
 
-    def delete_worskpace(self, wkspace_name: str) -> None:
+    def delete_workspace(self, wkspace_name: str) -> None:
         """Deletes a workspace.
 
         Args:
             wkspace_name: The name of the workspace to be deleted.
         """
-        return self.__api.delete_worskpace(wkspace_name)
+        return self.__api.delete_workspace(wkspace_name)
 
     # Branches
 
