@@ -69,7 +69,7 @@ class API:
             "name": repo_new_name,
         }
         response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
-        return self.__json2Repository(response)
+        return self.__json2Repository(response.json())
 
     @REST.DELETE("/repos/{repo_name}")
     def delete_repository(self, repo_name: str) -> None:
@@ -117,8 +117,7 @@ class API:
         response = action(self.__api_url + url, verify=self.__ssl_verify)
         return self.__json2Workspace(response.json())
 
-    # !!! was: @REST.PATCH("/wkspaces/{wkspace_name}")
-    @REST.PUT("/wkspaces/{wkspace_name}")                     # !!! was: -> Repository:
+    @REST.PATCH("/wkspaces/{wkspace_name}")                   # !!! was: -> Repository:
     def rename_workspace(self, wkspace_name: str, wkspace_new_name: str) -> Workspace:
         url, action = self.rename_workspace.REST
         url = url.format(wkspace_name=wkspace_name)
@@ -126,7 +125,7 @@ class API:
             "name": wkspace_new_name,
         }
         response = action(self.__api_url + url, data=params, verify=self.__ssl_verify)
-        return self.__json2Workspace(response)
+        return self.__json2Workspace(response.json())
 
     @REST.DELETE("/wkspaces/{wkspace_name}")
     def delete_worskpace(self, wkspace_name: str) -> None:
