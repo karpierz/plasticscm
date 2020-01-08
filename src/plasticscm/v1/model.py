@@ -344,8 +344,8 @@ class OperationStatus(base.OperationStatus):
         self.__updated_bytes: Optional[int] = updated_bytes
         return self
 
-    status        = property(lambda self: self.__status  or "")
-    message       = property(lambda self: self.__message or "")
+    status        = property(lambda self: self.__status)
+    message       = property(lambda self: self.__message)
     total_files   = property(lambda self: self.__total_files   or 0) 
     total_bytes   = property(lambda self: self.__total_bytes   or 0) 
     updated_files = property(lambda self: self.__updated_files or 0) 
@@ -368,8 +368,8 @@ class CheckinStatus(base.CheckinStatus):
         self.__transferred: Optional[int] = transferred_size
         return self
 
-    status           = property(lambda self: self.__status  or "")
-    message          = property(lambda self: self.__message or "")
+    status           = property(lambda self: self.__status)
+    message          = property(lambda self: self.__message)
     total_size       = property(lambda self: self.__total       or 0)
     transferred_size = property(lambda self: self.__transferred or 0)
 
