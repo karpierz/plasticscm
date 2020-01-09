@@ -28,14 +28,14 @@ class Workspace:
 
 
 @public
-class Branch:
-    """PlasticSCM's branch"""
-
-
-@public
 @enum.unique
 class ObjectType(enum.Enum):
     """PlasticSCM's object type"""
+
+
+@public
+class Branch:
+    """PlasticSCM's branch"""
 
 
 @public

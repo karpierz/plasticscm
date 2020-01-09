@@ -91,6 +91,14 @@ class Workspace(base.Workspace):
 
 @public
 @inherit_docs
+class ObjectType(base.ObjectType):
+    CHANGESET = "changeset"
+    LABEL     = "label"
+    BRANCH    = "branch"
+
+
+@public
+@inherit_docs
 class Branch(base.Branch):
 
     def __new__(cls, *,
@@ -124,14 +132,6 @@ class Branch(base.Branch):
     guid              = property(lambda self: self.__guid)
     owner             = property(lambda self: self.__owner)
     repository        = property(lambda self: self.__repository)
-
-
-@public
-@inherit_docs
-class ObjectType(base.ObjectType):
-    CHANGESET = "changeset"
-    LABEL     = "label"
-    BRANCH    = "branch"
 
 
 @public

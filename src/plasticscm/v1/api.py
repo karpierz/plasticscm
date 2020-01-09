@@ -185,7 +185,8 @@ class API:
     @REST.GET("/repos/{repo_name}/branches/{branch_name}")
     def get_branch(self, repo_name: str, branch_name: str) -> Branch:
         url, action = self.get_branch.REST
-        url = url.format(repo_name=repo_name, branch_name=branch_name)
+        url = url.format(repo_name=repo_name,
+                         branch_name=branch_name[int(branch_name.startswith("/")):])
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Branch(response.json())
@@ -193,7 +194,8 @@ class API:
     @REST.PATCH("/repos/{repo_name}/branches/{branch_name}")
     def rename_branch(self, repo_name: str, branch_name: str, branch_new_name: str) -> Branch:
         url, action = self.rename_branch.REST
-        url = url.format(repo_name=repo_name, branch_name=branch_name)
+        url = url.format(repo_name=repo_name,
+                         branch_name=branch_name[int(branch_name.startswith("/")):])
         params = {
             "name": branch_new_name,
         }
@@ -204,7 +206,8 @@ class API:
     @REST.DELETE("/repos/{repo_name}/branches/{branch_name}")
     def delete_branch(self, repo_name: str, branch_name: str) -> None:
         url, action = self.delete_branch.REST
-        url = url.format(repo_name=repo_name, branch_name=branch_name)
+        url = url.format(repo_name=repo_name,
+                         branch_name=branch_name[int(branch_name.startswith("/")):])
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
 
@@ -214,7 +217,7 @@ class API:
                       id=branch["id"],
                       parent_id=branch["parentId"],
                       last_changeset_id=branch["lastChangeset"],
-                      comment=label.get("comment"),
+                      comment=branch.get("comment"),
                       creation_date=isoparse(branch["creationDate"]),
                       guid=UUID("{" + branch["guid"] + "}"),
                       owner=Owner(name=branch["owner"]["name"],
@@ -313,7 +316,8 @@ class API:
     def get_changesets_in_branch(self, repo_name: str, branch_name: str,
                                  query: Optional[str]=None) -> Tuple[Changeset]:
         url, action = self.get_changesets_in_branch.REST
-        url = url.format(repo_name=repo_name, branch_name=branch_name)
+        url = url.format(repo_name=repo_name,
+                         branch_name=branch_name[int(branch_name.startswith("/")):])
         params = {}
         if query is not None:
             params.update({"q": query})
@@ -493,7 +497,7 @@ class API:
     def get_item_in_branch(self, repo_name: str, branch_name: str, item_path: str) -> Item:
         url, action = self.get_item_in_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name,
+                         branch_name=branch_name[int(branch_name.startswith("/")):],
                          item_path=item_path)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -523,7 +527,7 @@ class API:
     def get_item_revision_history_in_branch(self, repo_name: str, branch_name: str, item_path: str) -> Tuple[Item]:
         url, action = self.get_item_revision_history_in_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name,
+                         branch_name=branch_name[int(branch_name.startswith("/")):],
                          item_path=item_path)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -594,7 +598,8 @@ class API:
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/diff")
     def diff_branch(self, repo_name: str, branch_name: str) -> Tuple[Diff]:
         url, action = self.diff_branch.REST
-        url = url.format(repo_name=repo_name, branch_name=branch_name)
+        url = url.format(repo_name=repo_name,
+                         branch_name=branch_name[int(branch_name.startswith("/")):])
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Diff(diff) for diff in response.json())
