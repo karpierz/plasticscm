@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2019 Adam Karpierz
+# Copyright (c) 2019-2020 Adam Karpierz
 # Licensed under the zlib/libpng License
 # https://opensource.org/licenses/zlib
 
@@ -577,7 +577,7 @@ class Plastic:
         return self.__api.get_item_in_label(repo_name, label_name, item_path)
 
     def get_item_revision_history_in_branch(self, repo_name: str, branch_name: str,
-                                            item_path: str) -> Tuple[Item]:
+                                            item_path: str) -> Tuple[RevisionHistoryItem]:
         """???.
 
         Args:
@@ -594,7 +594,7 @@ class Plastic:
                                                               item_path)
 
     def get_item_revision_history_in_changeset(self, repo_name: str, changeset_id: int,
-                                               item_path: str) -> Tuple[Item]:
+                                               item_path: str) -> Tuple[RevisionHistoryItem]:
         """???.
 
         Args:
@@ -609,7 +609,7 @@ class Plastic:
                                                                  item_path)
 
     def get_item_revision_history_in_label(self, repo_name: str, label_name: str,
-                                           item_path: str) -> Tuple[Item]:
+                                           item_path: str) -> Tuple[RevisionHistoryItem]:
         """???.
 
         Args:

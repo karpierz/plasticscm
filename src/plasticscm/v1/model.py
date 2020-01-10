@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2019 Adam Karpierz
+# Copyright (c) 2019-2020 Adam Karpierz
 # Licensed under the zlib/libpng License
 # https://opensource.org/licenses/zlib
 
@@ -106,20 +106,20 @@ class Branch(base.Branch):
                 id: int,
                 parent_id: int,
                 last_changeset_id: int,
-                comment: str,
+                comment: Optional[str],
                 creation_date: datetime,
                 guid: UUID,
-                owner: Owner,
+                owner: Optional[Owner],
                 repository: Repository):
         self = super().__new__(cls)
         self.__name: str               = name
         self.__id: int                 = id
         self.__parent_id: int          = parent_id
         self.__last_changeset_id: int  = last_changeset_id
-        self.__comment: str            = comment
+        self.__comment: Optional[str]  = comment
         self.__creation_date: datetime = creation_date
         self.__guid: UUID              = guid
-        self.__owner: Owner            = owner
+        self.__owner: Optional[Owner]  = owner
         self.__repository: Repository  = repository
         return self
 
@@ -145,19 +145,19 @@ class Label(base.Label):
                 name: str,
                 id: int,
                 changeset_id: int,
-                comment: str,
+                comment: Optional[str],
                 creation_date: datetime,
                 branch: Branch,
-                owner: Owner,
+                owner: Optional[Owner],
                 repository: Repository):
         self = super().__new__(cls)
         self.__name: str               = name
         self.__id: int                 = id
         self.__changeset_id: int       = changeset_id
-        self.__comment: str            = comment
+        self.__comment: Optional[str]  = comment
         self.__creation_date: datetime = creation_date
         self.__branch: Branch          = branch
-        self.__owner: Owner            = owner
+        self.__owner: Optional[Owner]  = owner
         self.__repository: Repository  = repository
         return self
 
@@ -181,20 +181,20 @@ class Changeset(base.Changeset):
     def __new__(cls, *,
                 id: int,
                 parent_id: int,
-                comment: str,
+                comment: Optional[str],
                 creation_date: datetime,
                 guid: UUID,
                 branch: Branch,
-                owner: Owner,
+                owner: Optional[Owner],
                 repository: Repository):
         self = super().__new__(cls)
         self.__id: int                 = id
         self.__parent_id: int          = parent_id
-        self.__comment: str            = comment
+        self.__comment: Optional[str]  = comment
         self.__creation_date: datetime = creation_date
         self.__guid: UUID              = guid
         self.__branch: Branch          = branch
-        self.__owner: Owner            = owner
+        self.__owner: Optional[Owner]  = owner
         self.__repository: Repository  = repository
         return self
 
@@ -270,6 +270,52 @@ class RevisionInfo(base.RevisionInfo):
     is_checked_out = property(lambda self: self.__is_checked_out)
     creation_date  = property(lambda self: self.__creation_date)
     rep_id         = property(lambda self: self.__rep_id)
+    owner          = property(lambda self: self.__owner)
+
+
+@public
+@inherit_docs
+class RevisionHistoryItem(base.RevisionHistoryItem):
+
+    def __new__(cls, *,
+                type: str, # "text"
+                revision_id: int,
+                revision_link: Optional[str],
+                changeset_id: int,
+                changeset_link: Optional[str],
+                branch_name: str,
+                branch_link: Optional[str],
+                repo_name: str,
+                repo_link: Optional[str],
+                comment: Optional[str],
+                creation_date: datetime,
+                owner: Optional[Owner]):
+        self = super().__new__(cls)
+        self.__type                          = type
+        self.__revision_id: int              = revision_id
+        self.__revision_link: Optional[str]  = revision_link
+        self.__changeset_id: int             = changeset_id
+        self.__changeset_link: Optional[str] = changeset_link
+        self.__branch_name: str              = branch_name
+        self.__branch_link: Optional[str]    = branch_link
+        self.__repo_name: str                = repo_name
+        self.__repo_link: Optional[str]      = repo_link
+        self.__comment: Optional[str]        = comment
+        self.__creation_date: datetime       = creation_date
+        self.__owner: Optional[Owner]        = owner
+        return self
+
+    type           = property(lambda self: self.__type)
+    revision_id    = property(lambda self: self.__revision_id)
+    revision_link  = property(lambda self: self.__revision_link)
+    changeset_id   = property(lambda self: self.__changeset_id)
+    changeset_link = property(lambda self: self.__changeset_link)
+    branch_name    = property(lambda self: self.__branch_name)
+    branch_link    = property(lambda self: self.__branch_link)
+    repo_name      = property(lambda self: self.__repo_name)
+    repo_link      = property(lambda self: self.__repo_link)
+    comment        = property(lambda self: self.__comment)
+    creation_date  = property(lambda self: self.__creation_date)
     owner          = property(lambda self: self.__owner)
 
 
@@ -413,9 +459,9 @@ class Item(base.Item):
                 type: Type,
                 name: str,
                 path: str,
-                revision_id: int,
+                revision_id: Optional[int],
                 size: int,
-                is_under_xlink: bool,
+                is_under_xlink: Optional[bool],
                 content: Optional[str],
                 hash: Optional[str],
                 items: Optional[List['Item']],
@@ -425,9 +471,9 @@ class Item(base.Item):
         self.__type: Type                       = type
         self.__name: str                        = name
         self.__path: str                        = path
-        self.__revision_id: int                 = revision_id
+        self.__revision_id: Optional[int]       = revision_id
         self.__size: int                        = size
-        self.__is_under_xlink: bool             = is_under_xlink
+        self.__is_under_xlink: Optional[bool]   = is_under_xlink
         self.__content: Optional[str]           = content
         self.__hash: Optional[str]              = hash
         self.__items: Optional[List[Item]]      = items

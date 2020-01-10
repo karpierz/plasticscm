@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2019 Adam Karpierz
+# Copyright (c) 2019-2020 Adam Karpierz
 # Licensed under the zlib/libpng License
 # https://opensource.org/licenses/zlib
 
@@ -56,6 +56,11 @@ class LocalInfo:
 @public
 class RevisionInfo:
     """PlasticSCM's revision info"""
+
+
+@public
+class RevisionHistoryItem:
+    """PlasticSCM's revision history item"""
 
 
 @public

@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2019 Adam Karpierz
+# Copyright (c) 2019-2020 Adam Karpierz
 # Licensed under the zlib/libpng License
 # https://opensource.org/licenses/zlib
 
@@ -173,7 +173,7 @@ class API:
         url, action = self.create_branch.REST
         url = url.format(repo_name=repo_name)
         params = {
-            "name":       branch_name,
+            "name":       branch_name.strip("/"),
             "originType": origin_type.value,
             "origin":     str(origin),
             "topLevel":   top_level,
@@ -186,7 +186,7 @@ class API:
     def get_branch(self, repo_name: str, branch_name: str) -> Branch:
         url, action = self.get_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name[int(branch_name.startswith("/")):])
+                         branch_name=branch_name.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Branch(response.json())
@@ -195,7 +195,7 @@ class API:
     def rename_branch(self, repo_name: str, branch_name: str, branch_new_name: str) -> Branch:
         url, action = self.rename_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name[int(branch_name.startswith("/")):])
+                         branch_name=branch_name.strip("/"))
         params = {
             "name": branch_new_name,
         }
@@ -207,7 +207,7 @@ class API:
     def delete_branch(self, repo_name: str, branch_name: str) -> None:
         url, action = self.delete_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name[int(branch_name.startswith("/")):])
+                         branch_name=branch_name.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
 
@@ -221,7 +221,8 @@ class API:
                       creation_date=isoparse(branch["creationDate"]),
                       guid=UUID("{" + branch["guid"] + "}"),
                       owner=Owner(name=branch["owner"]["name"],
-                                  is_group=branch["owner"]["isGroup"]),
+                                  is_group=branch["owner"]["isGroup"])
+                            if "owner" in branch else None,
                       repository=self.__json2Repository(branch["repository"]))
 
     # Labels
@@ -295,7 +296,8 @@ class API:
                      creation_date=isoparse(label["creationDate"]),
                      branch=self.__json2Branch(label["branch"]),
                      owner=Owner(name=label["owner"]["name"],
-                                 is_group=label["owner"]["isGroup"]),
+                                 is_group=label["owner"]["isGroup"])
+                           if "owner" in label else None,
                      repository=self.__json2Repository(label["repository"]))
 
     # Changesets
@@ -317,7 +319,7 @@ class API:
                                  query: Optional[str]=None) -> Tuple[Changeset]:
         url, action = self.get_changesets_in_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name[int(branch_name.startswith("/")):])
+                         branch_name=branch_name.strip("/"))
         params = {}
         if query is not None:
             params.update({"q": query})
@@ -342,7 +344,8 @@ class API:
                          guid=UUID("{" + chset["guid"] + "}"),
                          branch=self.__json2Branch(chset["branch"]),
                          owner=Owner(name=chset["owner"]["name"],
-                                     is_group=chset["owner"]["isGroup"]),
+                                     is_group=chset["owner"]["isGroup"])
+                               if "owner" in chset else None,
                          repository=self.__json2Repository(chset["repository"]))
 
     # Changes
@@ -497,7 +500,7 @@ class API:
     def get_item_in_branch(self, repo_name: str, branch_name: str, item_path: str) -> Item:
         url, action = self.get_item_in_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name[int(branch_name.startswith("/")):],
+                         branch_name=branch_name.strip("/"),
                          item_path=item_path)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -524,34 +527,34 @@ class API:
         return self.__json2Item(response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/history/{item_path}")
-    def get_item_revision_history_in_branch(self, repo_name: str, branch_name: str, item_path: str) -> Tuple[Item]:
+    def get_item_revision_history_in_branch(self, repo_name: str, branch_name: str, item_path: str) -> Tuple[RevisionHistoryItem]:
         url, action = self.get_item_revision_history_in_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name[int(branch_name.startswith("/")):],
+                         branch_name=branch_name.strip("/"),
                          item_path=item_path)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
-        return tuple(self.__json2Item(item) for item in response.json())
+        return tuple(self.__json2RevisionHistoryItem(item) for item in response.json())
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/history/{item_path}")
-    def get_item_revision_history_in_changeset(self, repo_name: str, changeset_id: int, item_path: str) -> Tuple[Item]:
+    def get_item_revision_history_in_changeset(self, repo_name: str, changeset_id: int, item_path: str) -> Tuple[RevisionHistoryItem]:
         url, action = self.get_item_revision_history_in_changeset.REST
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
                          item_path=item_path)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
-        return tuple(self.__json2Item(item) for item in response.json())
+        return tuple(self.__json2RevisionHistoryItem(item) for item in response.json())
 
     @REST.GET("/repos/{repo_name}/labels/{label_name}/history/{item_path}")
-    def get_item_revision_history_in_label(self, repo_name: str, label_name: str, item_path: str) -> Tuple[Item]:
+    def get_item_revision_history_in_label(self, repo_name: str, label_name: str, item_path: str) -> Tuple[RevisionHistoryItem]:
         url, action = self.get_item_revision_history_in_label.REST
         url = url.format(repo_name=repo_name,
                          label_name=label_name,
                          item_path=item_path)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
-        return tuple(self.__json2Item(item) for item in response.json())
+        return tuple(self.__json2RevisionHistoryItem(item) for item in response.json())
 
     def __json2Item(self, item: Dict):
         return Item(# ???
@@ -559,11 +562,11 @@ class API:
                               if itype.value == item["type"]),
                     name=item["name"],
                     path=item["path"],
-                    revision_id=item["revisionId"], # Optional ???
+                    revision_id=item.get("revisionId"), # Optional ???
                     size=item["size"],
-                    is_under_xlink=item["isUnderXlink"],
-                    content=item["content"] if "content" in item else None,
-                    hash=item["hash"] if "hash" in item else None,
+                    is_under_xlink=item.get("isUnderXlink"),
+                    content=item.get("content"),
+                    hash=item.get("hash"),
                     items=[self.__json2Item(elem) for elem in item["items"]]
                           if "items" in item else None,
                     xlink_target=XLink(changeset_id=item["xlinkTarget"]["changesetId"],
@@ -573,6 +576,23 @@ class API:
                                  if "xlinkTarget" in item else None,
                     repository=self.__json2Repository(item["repository"])
                                if "repository" in item else None)
+
+    def __json2RevisionHistoryItem(self, rhitem: Dict):
+        return RevisionHistoryItem(# ???
+                                   type=rhitem["type"],
+                                   revision_id=rhitem["revisionId"],
+                                   revision_link=rhitem.get("revisionLink"),
+                                   changeset_id=rhitem["changesetId"],
+                                   changeset_link=rhitem.get("changesetLink"),
+                                   branch_name=rhitem["branchName"],
+                                   branch_link=rhitem.get("branchLink"),
+                                   repo_name=rhitem["repositoryName"],
+                                   repo_link=rhitem.get("repositoryLink"),
+                                   comment=rhitem.get("comment"),
+                                   creation_date=isoparse(rhitem["creationDate"]),
+                                   owner=Owner(name=rhitem["owner"]["name"],
+                                               is_group=rhitem["owner"]["isGroup"])
+                                         if "owner" in rhitem else None)
 
     # Diff
 
@@ -599,7 +619,7 @@ class API:
     def diff_branch(self, repo_name: str, branch_name: str) -> Tuple[Diff]:
         url, action = self.diff_branch.REST
         url = url.format(repo_name=repo_name,
-                         branch_name=branch_name[int(branch_name.startswith("/")):])
+                         branch_name=branch_name.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Diff(diff) for diff in response.json())
@@ -609,13 +629,13 @@ class API:
                     status=next(item for item in Diff.Status
                                 if item.value == diff["status"]),
                     path=diff["path"],
-                    source_path=diff["srcPath"] if "srcPath" in diff else None,
-                    revision_id=diff["revisionId"] if "revisionId" in diff else None,
-                    source_revision_id=diff["srcRevisionId"] if "srcRevisionId" in diff else None,
+                    source_path=diff.get("srcPath"),
+                    revision_id=diff.get("revisionId"),
+                    source_revision_id=diff.get("srcRevisionId"),
                     is_directory=diff["isDirectory"],
-                    size=diff["size"] if "size" in diff else None,
-                    hash=diff["hash"] if "hash" in diff else None,
-                    source_hash=diff["srcHash"] if "srcHash" in diff else None,
+                    size=diff.get("size"),
+                    hash=diff.get("hash"),
+                    source_hash=diff.get("srcHash"),
                     is_under_xlink=diff["isUnderXlink"],
                     xlink=XLink(changeset_id=diff["xlink"]["changesetId"], # Optional ???
                                 changeset_guid=diff["xlink"]["changesetGuid"],
@@ -630,8 +650,7 @@ class API:
                     merges=[Merge(merge_type=next(item for item in Merge.Type
                                                   if item.value == merge["mergeType"]),
                                   source_changeset=self.__json2Changeset(merge["sourceChangeset"]))
-                            for merge in diff["merges"]]
-                           if "merges" in diff else None,
+                            for merge in diff["merges"]] if "merges" in diff else None,
                     is_item_FS_protection_changed=diff["isItemFSProtectionChanged"],
                     item_FS_protection=diff["itemFileSystemProtection"],  # TODO change this to enum if possible
                     repository=self.__json2Repository(diff["repository"]),
