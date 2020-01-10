@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.0.1a2 (unreleased)
+0.0.1a2 (2020-01-10)
 --------------------
 - Fixes for rename_repository() and rename_workspace().
 - Changes of OperationStatus and CheckinStatus models.
