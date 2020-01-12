@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.0a2 (2020-01-12)
+--------------------
+- Drop support for Python 3.5
+
 0.1.0a1 (2020-01-12)
 --------------------
 - Added get_item_revision().
