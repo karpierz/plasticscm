@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.1.0a1 (2020-01-12)
+--------------------
+- Added get_item_revision().
+- Docstings have been completed.
+- Changes for preliminary tests.
+- Added a preliminary documentation.
+
 0.0.1a2 (2020-01-10)
 --------------------
 - Fixes for rename_repository() and rename_workspace().

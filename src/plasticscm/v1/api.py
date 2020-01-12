@@ -27,13 +27,13 @@ class API:
                 http_username: Optional[str]=None,
                 http_password: Optional[str]=None,
                 ssl_verify: bool=True,
-                timeout=None):
+                timeout: Union[int, float]=None):
         self = super().__new__(cls)
         self.__api_url = "{}/api/v1".format(url)
         self.__http_username = http_username
         self.__http_username = http_password
-        self.__ssl_verify = ssl_verify  # Whether SSL certificates should be validated
-        self.__timeout = timeout  # Timeout to use for requests to PlasticSCM server
+        self.__ssl_verify = ssl_verify   # Whether SSL certificates should be validated
+        self.__timeout = float(timeout) if timeout is not None else None
         return self
 
     # Repositories
@@ -465,7 +465,7 @@ class API:
     def checkin_workspace(self, wkspace_name: str,
                           paths: Optional[List[str]]=None,
                           comment: Optional[str]=None,
-                          recurse: bool=False) -> CheckinStatus:
+                          recurse: bool=True) -> CheckinStatus:
         url, action = self.checkin_workspace.REST
         url = url.format(wkspace_name=wkspace_name)
         params = {
@@ -488,10 +488,10 @@ class API:
     # Repository contents
 
     @REST.GET("/repos/{repo_name}/contents/{item_path}")
-    def getItemInRepository(self, repo_name: str, item_path: str) -> Item:
-        url, action = self.getItemInRepository.REST
+    def get_item(self, repo_name: str, item_path: str) -> Item:
+        url, action = self.get_item.REST
         url = url.format(repo_name=repo_name,
-                         item_path=item_path)
+                         item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
@@ -501,7 +501,7 @@ class API:
         url, action = self.get_item_in_branch.REST
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"),
-                         item_path=item_path)
+                         item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
@@ -511,7 +511,7 @@ class API:
         url, action = self.get_item_in_changeset.REST
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
-                         item_path=item_path)
+                         item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
@@ -521,7 +521,16 @@ class API:
         url, action = self.get_item_in_label.REST
         url = url.format(repo_name=repo_name,
                          label_name=label_name,
-                         item_path=item_path)
+                         item_path=item_path.strip("/"))
+        response = action(self.__api_url + url,
+                          verify=self.__ssl_verify, timeout=self.__timeout)
+        return self.__json2Item(response.json())
+
+    @REST.GET("/repos/{repo_name}/revisions/{revision_spec}")
+    def get_item_revision(self, repo_name: str, revision_spec: str) -> Item:
+        url, action = self.get_item_revision.REST
+        url = url.format(repo_name=repo_name,
+                         revision_spec=revision_spec.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Item(response.json())
@@ -531,7 +540,7 @@ class API:
         url, action = self.get_item_revision_history_in_branch.REST
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"),
-                         item_path=item_path)
+                         item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2RevisionHistoryItem(item) for item in response.json())
@@ -541,7 +550,7 @@ class API:
         url, action = self.get_item_revision_history_in_changeset.REST
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
-                         item_path=item_path)
+                         item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2RevisionHistoryItem(item) for item in response.json())
@@ -551,7 +560,7 @@ class API:
         url, action = self.get_item_revision_history_in_label.REST
         url = url.format(repo_name=repo_name,
                          label_name=label_name,
-                         item_path=item_path)
+                         item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2RevisionHistoryItem(item) for item in response.json())
@@ -669,7 +678,7 @@ class API:
                            checkout_parent: bool=True,
                            recurse: bool=True) -> AffectedPaths:
         url, action = self.add_workspace_item.REST
-        url = url.format(wkspace_name=wkspace_name, item_path=item_path)
+        url = url.format(wkspace_name=wkspace_name, item_path=item_path.strip("/"))
         params = {
             "addPrivateParents": add_parents,
             "checkoutParent":    checkout_parent,
@@ -682,7 +691,7 @@ class API:
     @REST.PUT("/wkspaces/{wkspace_name}/content/{item_path}")
     def checkout_workspace_item(self, wkspace_name: str, item_path: str) -> AffectedPaths:
         url, action = self.checkout_workspace_item.REST
-        url = url.format(wkspace_name=wkspace_name, item_path=item_path)
+        url = url.format(wkspace_name=wkspace_name, item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2AffectedPaths(response.json())
@@ -691,7 +700,7 @@ class API:
     def move_workspace_item(self, wkspace_name: str, item_path: str,
                             dest_item_path: str) -> AffectedPaths:
         url, action = self.move_workspace_item.REST
-        url = url.format(wkspace_name=wkspace_name, item_path=item_path)
+        url = url.format(wkspace_name=wkspace_name, item_path=item_path.strip("/"))
         params = {
             "destination": dest_item_path,
         }

@@ -10,6 +10,7 @@ Parts of the documentation
    :maxdepth: 2
    :caption: Contents:
 
+   plasticscm.rst
    CHANGES.rst
 
 Indices and tables

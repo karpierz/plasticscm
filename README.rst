@@ -1,7 +1,7 @@
 plasticscm
 ==========
 
-Python package providing access to the PlasticSCM server API.
+Python package providing access to the PlasticSCM client API.
 
 Overview
 ========

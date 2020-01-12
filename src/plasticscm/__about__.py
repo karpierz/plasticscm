@@ -7,10 +7,10 @@ __all__ = ('__title__', '__summary__', '__uri__', '__version_info__',
            '__copyright__', '__license__')
 
 __title__        = "plasticscm"
-__summary__      = "Python package providing access to the PlasticSCM server API."
+__summary__      = "Python package providing access to the PlasticSCM client API."
 __uri__          = "https://pypi.org/project/plasticscm/"
-__version_info__ = type("version_info", (), dict(serial=2,
-                        major=0, minor=0, micro=1, releaselevel="alpha"))
+__version_info__ = type("version_info", (), dict(serial=1,
+                        major=0, minor=1, micro=0, releaselevel="alpha"))
 __version__      = "{0.major}.{0.minor}.{0.micro}{1}{2}".format(__version_info__,
                    dict(final="", alpha="a", beta="b", rc="rc")[__version_info__.releaselevel],
                    "" if __version_info__.releaselevel == "final" else __version_info__.serial)

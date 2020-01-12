@@ -17,7 +17,8 @@ class TestPlastic(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.url = url = "http://localhost:9090"
-        cls.pl  = pl  = Plastic(url, api_version="1")
+        scheme, _, netloc = url.partition("://")
+        cls.pl  = pl = Plastic(url, api_version="1")
         cls.test_table = [
 
             # Repositories
@@ -26,7 +27,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_repositories",
                 "args": (),
                 "rtype": Tuple,#[pl.model.Repository],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -51,9 +53,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "create_repository",
-                "args": ("repName",),
+                "args": ("main_repo",),
                 "rtype": pl.model.Repository,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/repos$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -61,22 +64,23 @@ class TestPlastic(unittest.TestCase):
                             "id": 2,
                             "moduleId": 0
                         },
-                        "name": "repName",
+                        "name": "main_repo",
                         "guid": "c45b8af3-1a10-d31f-baca-c00590d12456",
                         "owner": {
                             "name": "all",
                             "isGroup": False
                         },
-                        "server": "myserver:8084"
+                        "server": "my_server:8084"
                     }
                 }
             },
             {
                 "method": "create_repository",
-                "args": ("repName",),
+                "args": ("main_repo",),
                 "kwargs": dict(server="otherserver:8084"),
                 "rtype": pl.model.Repository,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/repos$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -84,7 +88,7 @@ class TestPlastic(unittest.TestCase):
                             "id": 2,
                             "moduleId": 0
                         },
-                        "name": "repName",
+                        "name": "main_repo",
                         "guid": "c45b8af3-1a10-d31f-baca-c00590d12456",
                         "owner": {
                             "name": "all",
@@ -99,7 +103,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_repository",
                 "args": ("default",),
                 "rtype": pl.model.Repository,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -120,9 +125,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "rename_repository",
-                "args": ("oldName", "newName"),
+                "args": ("old_name", "new_name"),
                 "rtype": pl.model.Repository,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+$", method="put"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="put",
+                                     path=r"^/api/v1/repos/\w+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -130,13 +136,13 @@ class TestPlastic(unittest.TestCase):
                             "id": 2,
                             "moduleId": 0
                         },
-                        "name": "newName",
+                        "name": "new_name",
                         "guid": "c45b8af3-1a10-d31f-baca-c00590d12456",
                         "owner": {
                             "name": "all",
                             "isGroup": False
                         },
-                        "server": "myserver:8084"
+                        "server": "my_server:8084"
                     }
                 }
             },
@@ -145,7 +151,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "delete_repository",
                 "args": ("default",),
                 "rtype": None,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+$", method="delete"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="delete",
+                                     path=r"^/api/v1/repos/\w+$"),
                 "expected": {
                     "status_code": 204, # No Content
                     "content": None
@@ -158,12 +165,13 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_workspaces",
                 "args": (),
                 "rtype": Tuple,#[pl.model.Workspace],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
                         {
-                            "name": "my_wk",
+                            "name": "my_wkspace",
                             "guid": "e93518f8-20a6-4534-a7c6-f3d9ebac45cb",
                             "path": "c:\\path\\to\\workspace",
                             "machineName": "MACHINE",
@@ -174,31 +182,33 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "create_workspace",
-                "args": ("my_wk", Path("c:\\the\\path\\to\\new_wk")),
+                "args": ("my_wkspace", Path("c:\\the\\path\\to\\new_wkspace")),
                 "rtype": pl.model.Workspace,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
-                        "name": "my_wk",
+                        "name": "my_wkspace",
                         "guid": "ed3248d2-5591-407a-94e6-84dac0ce015b",
-                        "path": "c:\\the\\path\\to\\new_wk",
+                        "path": "c:\\the\\path\\to\\new_wkspace",
                         "machineName": "MACHINE"
                     }
                 }
             },
             {
                 "method": "create_workspace",
-                "args": ("my_wk", Path("c:\\the\\path\\to\\new_wk")),
+                "args": ("my_wkspace", Path("c:\\the\\path\\to\\new_wkspace")),
                 "kwargs": dict(repo_name="default"),
                 "rtype": pl.model.Workspace,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
-                        "name": "my_wk",
+                        "name": "my_wkspace",
                         "guid": "ed3248d2-5591-407a-94e6-84dac0ce015b",
-                        "path": "c:\\the\\path\\to\\new_wk",
+                        "path": "c:\\the\\path\\to\\new_wkspace",
                         "machineName": "MACHINE"
                     }
                 }
@@ -206,13 +216,14 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_workspace",
-                "args": ("my_wk",),
+                "args": ("my_wkspace",),
                 "rtype": pl.model.Workspace,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
-                        "name": "my_wk",
+                        "name": "my_wkspace",
                         "guid": "e93518f8-20a6-4534-a7c6-f3d9ebac45cb",
                         "path": "c:\\path\\to\\workspace",
                         "machineName": "MACHINE",
@@ -222,15 +233,16 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "rename_workspace",
-                "args": ("oldName", "newName"),
+                "args": ("old_name", "new_name"),
                 "rtype": pl.model.Workspace,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+$", method="patch"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="patch",
+                                     path=r"^/api/v1/wkspaces/\w+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
-                        "name": "newName",
+                        "name": "new_name",
                         "guid": "ed3248d2-5591-407a-94e6-84dac0ce015b",
-                        "path": "c:\\the\\path\\to\\new_wk",
+                        "path": "c:\\the\\path\\to\\new_wkspace",
                         "machineName": "MACHINE",
                     }
                 }
@@ -238,9 +250,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "delete_workspace",
-                "args": ("my_wk",),
+                "args": ("my_wkspace",),
                 "rtype": None,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+$", method="delete"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="delete",
+                                     path=r"^/api/v1/wkspaces/\w+$"),
                 "expected": {
                     "status_code": 204, # No Content
                     "content": None
@@ -251,9 +264,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_branches",
-                "args": ("mainrepo",),
+                "args": ("main_repo",),
                 "rtype": Tuple,#[pl.model.Branch],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -270,7 +284,7 @@ class TestPlastic(unittest.TestCase):
                                 "isGroup": False
                             },
                             "repository": {
-                                "name": "mainrepo",
+                                "name": "main_repo",
                                 "repId": {
                                     "id": 1,
                                     "moduleId": 0
@@ -288,10 +302,11 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_branches",
-                "args": ("mainrepo",),
+                "args": ("main_repo",),
                 "kwargs": dict(query="id > 50"),
                 "rtype": Tuple,#[pl.model.Branch],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -308,7 +323,7 @@ class TestPlastic(unittest.TestCase):
                                 "isGroup": False
                             },
                             "repository": {
-                                "name": "mainrepo",
+                                "name": "main_repo",
                                 "repId": {
                                     "id": 1,
                                     "moduleId": 0
@@ -329,7 +344,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "create_branch",
                 "args": ("default", "newBranch", pl.model.ObjectType.BRANCH, "/main/scm003"),
                 "rtype": pl.model.Branch,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/repos/\w+/branches$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -364,7 +380,8 @@ class TestPlastic(unittest.TestCase):
                 "args": ("default", "newBranch", pl.model.ObjectType.LABEL, "BL000"),
                 "kwargs": dict(top_level=True),
                 "rtype": pl.model.Branch,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/repos/\w+/branches$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -399,7 +416,8 @@ class TestPlastic(unittest.TestCase):
                 "args": ("default", "newBranch", pl.model.ObjectType.CHANGESET, 97),
                 "kwargs": dict(top_level=False),
                 "rtype": pl.model.Branch,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/repos/\w+/branches$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -432,9 +450,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_branch",
-                "args": ("mainrepo", "/main/task001/task002"),
+                "args": ("main_repo", "/main/task001/task002"),
                 "rtype": pl.model.Branch,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -450,7 +469,7 @@ class TestPlastic(unittest.TestCase):
                             "isGroup": False
                         },
                         "repository": {
-                            "name": "mainrepo",
+                            "name": "main_repo",
                             "repId": {
                                 "id": 1,
                                 "moduleId": 0
@@ -468,9 +487,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "rename_branch",
-                "args": ("mainrepo", "/main/task001/task002", "/main/task001/task003"),
+                "args": ("main_repo", "/main/task001/task002", "/main/task001/task003"),
                 "rtype": pl.model.Branch,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+$", method="patch"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="patch",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -486,7 +506,7 @@ class TestPlastic(unittest.TestCase):
                             "isGroup": False
                         },
                         "repository": {
-                            "name": "mainrepo",
+                            "name": "main_repo",
                             "repId": {
                                 "id": 1,
                                 "moduleId": 0
@@ -504,9 +524,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "delete_branch",
-                "args": ("mainrepo", "/main/task001/task002"),
+                "args": ("main_repo", "/main/task001/task002"),
                 "rtype": None,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+$", method="delete"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="delete",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+$"),
                 "expected": {
                     "status_code": 204, # No Content
                     "content":  None
@@ -519,7 +540,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_labels",
                 "args": ("default",),
                 "rtype": Tuple,#[pl.model.Label],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/labels$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -581,7 +603,8 @@ class TestPlastic(unittest.TestCase):
                 "args": ("default",),
                 "kwargs": dict(query="date >= '2015-07-01'"),
                 "rtype": Tuple,#[pl.model.Label],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/labels$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -644,7 +667,8 @@ class TestPlastic(unittest.TestCase):
                 "args": ("default", "BL001", 99),
                 "kwargs": dict(comment="Stable baseline - 1"),
                 "rtype": pl.model.Label,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/repos/\w+/labels$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -704,7 +728,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_label",
                 "args": ("default", "BL000"),
                 "rtype": pl.model.Label,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels/\w+$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/labels/\w+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -764,7 +789,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "rename_label",
                 "args": ("default", "BL000", "v1.0.0"),
                 "rtype": pl.model.Label,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels/\w+$", method="patch"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="patch",
+                                     path=r"^/api/v1/repos/\w+/labels/\w+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -824,7 +850,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "delete_label",
                 "args": ("default", "BL000"),
                 "rtype": None,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels/\w+$", method="delete"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="delete",
+                                     path=r"^/api/v1/repos/\w+/labels/\w+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": None
@@ -837,7 +864,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_changesets",
                 "args": ("default",),
                 "rtype": Tuple,#[pl.model.Changeset],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -848,7 +876,7 @@ class TestPlastic(unittest.TestCase):
                             "creationDate": "2015-04-09T07:17:00",
                             "guid": "0497ef04-4c81-4090-8458-649885400c84",
                             "branch": {
-                                "name": "\/main",
+                                "name": "/main",
                                 "id": 3,
                                 "parentId": -1,
                                 "lastChangeset": 101,
@@ -899,7 +927,8 @@ class TestPlastic(unittest.TestCase):
                 "args": ("default",),
                 "kwargs": dict(query="date > '2015-04-09'"),
                 "rtype": Tuple,#[pl.model.Changeset],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -910,7 +939,7 @@ class TestPlastic(unittest.TestCase):
                             "creationDate": "2015-04-09T07:17:00",
                             "guid": "0497ef04-4c81-4090-8458-649885400c84",
                             "branch": {
-                                "name": "\/main",
+                                "name": "/main",
                                 "id": 3,
                                 "parentId": -1,
                                 "lastChangeset": 101,
@@ -961,7 +990,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_changesets_in_branch",
                 "args": ("default", "/main/scm003"),
                 "rtype": Tuple,#[pl.model.Changeset],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+/changesets$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+/changesets$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -1023,7 +1053,8 @@ class TestPlastic(unittest.TestCase):
                 "args": ("default", "/main/scm003"),
                 "kwargs": dict(query="changesetid > 50"),
                 "rtype": Tuple,#[pl.model.Changeset],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+/changesets$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+/changesets$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -1085,7 +1116,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "get_changeset",
                 "args": ("default", 1383),
                 "rtype": pl.model.Changeset,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets/\d+$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets/\d+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1145,9 +1177,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_pending_changes",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": Tuple,#[pl.model.Change],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/changes$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/changes$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -1156,8 +1189,8 @@ class TestPlastic(unittest.TestCase):
                                 "CH",
                                 "MV"
                             ],
-                            "path": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\orchestrated.fspro",
-                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\audio-prj.fspro",
+                            "path": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\orchestrated.fspro",
+                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\audio-prj.fspro",
                             "serverPath": "/audio-prj/orchestrated.fspro",
                             "oldServerPath": "/audio-prj/audio-prj.fspro",
                             "isXlink": False,
@@ -1192,10 +1225,11 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_pending_changes",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "kwargs": dict(change_types=[pl.model.Change.Type.ALL]),
                 "rtype": Tuple,#[pl.model.Change],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/changes$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/changes$"),
                 "expected": {
                     "status_code": 200, # OK
 
@@ -1205,8 +1239,8 @@ class TestPlastic(unittest.TestCase):
                                 "CH",
                                 "MV"
                             ],
-                            "path": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\orchestrated.fspro",
-                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\audio-prj.fspro",
+                            "path": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\orchestrated.fspro",
+                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\audio-prj.fspro",
                             "serverPath": "/audio-prj/orchestrated.fspro",
                             "oldServerPath": "/audio-prj/audio-prj.fspro",
                             "isXlink": False,
@@ -1241,11 +1275,12 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_pending_changes",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "kwargs": dict(change_types=[pl.model.Change.Type.ADDED,
                                              pl.model.Change.Type.CHANGED]),
                 "rtype": Tuple,#[pl.model.Change],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/changes$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/changes$"),
                 "expected": {
                     "status_code": 200, # OK
 
@@ -1255,8 +1290,8 @@ class TestPlastic(unittest.TestCase):
                                 "CH",
                                 "MV"
                             ],
-                            "path": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\orchestrated.fspro",
-                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\audio-prj.fspro",
+                            "path": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\orchestrated.fspro",
+                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\audio-prj.fspro",
                             "serverPath": "/audio-prj/orchestrated.fspro",
                             "oldServerPath": "/audio-prj/audio-prj.fspro",
                             "isXlink": False,
@@ -1291,11 +1326,12 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_pending_changes",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "kwargs": dict(change_types=[pl.model.Change.Type.MOVED,
                                              pl.model.Change.Type.DELETED]),
                 "rtype": Tuple,#[pl.model.Change],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/changes$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/changes$"),
                 "expected": {
                     "status_code": 200, # OK
 
@@ -1305,8 +1341,8 @@ class TestPlastic(unittest.TestCase):
                                 "CH",
                                 "MV"
                             ],
-                            "path": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\orchestrated.fspro",
-                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\audio-prj.fspro",
+                            "path": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\orchestrated.fspro",
+                            "oldPath": "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\audio-prj.fspro",
                             "serverPath": "/audio-prj/orchestrated.fspro",
                             "oldServerPath": "/audio-prj/audio-prj.fspro",
                             "isXlink": False,
@@ -1342,28 +1378,31 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "undo_pending_changes",
-                "args": ("mainwk", [Path("c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\orchestrated.fspro")]),
+                "args": ("main_wkspace",
+                         [Path("c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\orchestrated.fspro")]),
                 "rtype": pl.model.AffectedPaths,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/changes$", method="delete"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="delete",
+                                     path=r"^/api/v1/wkspaces/\w+/changes$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
                         "affectedPaths": [
-                            "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\orchestrated.fspro",
+                            "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\orchestrated.fspro",
                         ]
                     }
                 }
             },
             {
                 "method": "undo_pending_changes",
-                "args": ("mainwk", [Path("audio-prj/orchestrated.fspro")]),
+                "args": ("main_wkspace", [Path("audio-prj/orchestrated.fspro")]),
                 "rtype": pl.model.AffectedPaths,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/changes$", method="delete"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="delete",
+                                     path=r"^/api/v1/wkspaces/\w+/changes$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
                         "affectedPaths": [
-                            "c:\\Users\\scm-user\\wkspaces\\mainwk\\audio-prj\\orchestrated.fspro",
+                            "c:\\Users\\scm-user\\wkspaces\\main_wkspace\\audio-prj\\orchestrated.fspro",
                         ]
                     }
                 }
@@ -1373,9 +1412,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_workspace_update_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/update$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/update$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1385,9 +1425,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_update_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/update$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/update$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1398,9 +1439,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_update_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/update$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/update$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1414,9 +1456,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_update_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/update$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/update$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1430,9 +1473,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_update_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/update$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/update$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1447,9 +1491,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "update_workspace",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/update$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/update$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1464,9 +1509,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_workspace_switch_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1476,9 +1522,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_switch_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1489,9 +1536,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_switch_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1505,9 +1553,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_switch_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1521,9 +1570,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_switch_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1538,9 +1588,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "switch_workspace",
-                "args": ("mainwk", pl.model.ObjectType.BRANCH, "/main/task001"),
+                "args": ("main_wkspace", pl.model.ObjectType.BRANCH, "/main/task001"),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1554,9 +1605,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "switch_workspace",
-                "args": ("mainwk", pl.model.ObjectType.CHANGESET, 1136),
+                "args": ("main_wkspace", pl.model.ObjectType.CHANGESET, 1136),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1570,9 +1622,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "switch_workspace",
-                "args": ("mainwk", pl.model.ObjectType.LABEL, "BL001"),
+                "args": ("main_wkspace", pl.model.ObjectType.LABEL, "BL001"),
                 "rtype": pl.model.OperationStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/switch$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/switch$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1589,9 +1642,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_workspace_checkin_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.CheckinStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/checkin$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/checkin$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1601,9 +1655,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_checkin_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.CheckinStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/checkin$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/checkin$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1614,9 +1669,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_workspace_checkin_status",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.CheckinStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/checkin$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/wkspaces/\w+/checkin$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1629,9 +1685,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "checkin_workspace",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "rtype": pl.model.CheckinStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/checkin$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/checkin$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1643,10 +1700,11 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "checkin_workspace",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
                 "kwargs": dict(comment="Upgrade core engine"),
                 "rtype": pl.model.CheckinStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/checkin$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/checkin$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1658,14 +1716,34 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "checkin_workspace",
-                "args": ("mainwk",),
+                "args": ("main_wkspace",),
+                "kwargs": dict(paths=["src/foo.c",
+                                      "src/bar/baz.c",
+                                      "doc"],
+                               comment="Upgrade core engine"),
+                "rtype": pl.model.CheckinStatus,
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/checkin$"),
+                "expected": {
+                    "status_code": 200, # OK
+                    "content": {
+                        "status": "Checkin operation starting...",
+                        "totalSize": 0,
+                        "transferredSize": 0,
+                    }
+                }
+            },
+            {
+                "method": "checkin_workspace",
+                "args": ("main_wkspace",),
                 "kwargs": dict(paths=["src/foo.c",
                                       "src/bar/baz.c",
                                       "doc"],
                                comment="Upgrade core engine",
-                               recurse=True),
+                               recurse=False),
                 "rtype": pl.model.CheckinStatus,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/checkin$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/checkin$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1679,10 +1757,11 @@ class TestPlastic(unittest.TestCase):
             # Repository contents
 
             {
-                "method": "getItemInRepository",
-                "args": ("myrepo", "src/lib/foo.c"),
+                "method": "get_item",
+                "args": ("my_repo", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1693,14 +1772,14 @@ class TestPlastic(unittest.TestCase):
                         "path": "/fmod/soundproject.fspro",
                         "isUnderXlink": False,
                         "hash": "/2ygGGfoXDq9bbKZJCzj9g==",
-                        "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/771/blob",
+                        "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/771/blob",
                         "repository": {
                             "repId":
                             {
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -1713,10 +1792,11 @@ class TestPlastic(unittest.TestCase):
                 }
             },
             {
-                "method": "getItemInRepository",
-                "args": ("myrepo", "src/lib/foo.c"),
+                "method": "get_item",
+                "args": ("my_repo", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1747,7 +1827,7 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -1760,10 +1840,11 @@ class TestPlastic(unittest.TestCase):
                 }
             },
             {
-                "method": "getItemInRepository",
-                "args": ("myrepo", "src/lib/foo.c"),
+                "method": "get_item",
+                "args": ("my_repo", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1781,7 +1862,7 @@ class TestPlastic(unittest.TestCase):
                                 "name": "COPYING.LIB",
                                 "path": "/lib/xlink/mono/COPYING.LIB",
                                 "hash": "uFbSL8ON1UNln1XUYeAc7w==",
-                                "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/46348/blob"
+                                "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/46348/blob"
                             },
                             {
                                 "type": "directory",
@@ -1796,7 +1877,7 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -1811,9 +1892,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_item_in_branch",
-                "args": ("myrepo", "main/scm003", "src/lib/foo.c"),
+                "args": ("my_repo", "main/scm003", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1824,14 +1906,14 @@ class TestPlastic(unittest.TestCase):
                         "path": "/fmod/soundproject.fspro",
                         "isUnderXlink": False,
                         "hash": "/2ygGGfoXDq9bbKZJCzj9g==",
-                        "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/771/blob",
+                        "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/771/blob",
                         "repository": {
                             "repId":
                             {
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -1845,9 +1927,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_item_in_branch",
-                "args": ("myrepo", "main/scm003", "src/lib/foo.c"),
+                "args": ("my_repo", "main/scm003", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1878,7 +1961,7 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -1892,9 +1975,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_item_in_branch",
-                "args": ("myrepo", "main/scm003", "src/lib/foo.c"),
+                "args": ("my_repo", "main/scm003", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1912,7 +1996,7 @@ class TestPlastic(unittest.TestCase):
                                 "name": "COPYING.LIB",
                                 "path": "/lib/xlink/mono/COPYING.LIB",
                                 "hash": "uFbSL8ON1UNln1XUYeAc7w==",
-                                "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/46348/blob"
+                                "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/46348/blob"
                             },
                             {
                                 "type": "directory",
@@ -1927,7 +2011,7 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -1942,9 +2026,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_item_in_changeset",
-                "args": ("myrepo", 5378, "src/lib/foo.c"),
+                "args": ("my_repo", 5378, "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets/\d+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets/\d+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -1955,14 +2040,14 @@ class TestPlastic(unittest.TestCase):
                         "path": "/fmod/soundproject.fspro",
                         "isUnderXlink": False,
                         "hash": "/2ygGGfoXDq9bbKZJCzj9g==",
-                        "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/771/blob",
+                        "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/771/blob",
                         "repository": {
                             "repId":
                             {
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -1976,9 +2061,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_item_in_changeset",
-                "args": ("myrepo", 5378, "src/lib/foo.c"),
+                "args": ("my_repo", 5378, "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets/\d+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets/\d+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -2009,7 +2095,7 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -2023,9 +2109,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_item_in_changeset",
-                "args": ("myrepo", 5378, "src/lib/foo.c"),
+                "args": ("my_repo", 5378, "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets/\d+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets/\d+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -2043,7 +2130,7 @@ class TestPlastic(unittest.TestCase):
                                 "name": "COPYING.LIB",
                                 "path": "/lib/xlink/mono/COPYING.LIB",
                                 "hash": "uFbSL8ON1UNln1XUYeAc7w==",
-                                "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/46348/blob"
+                                "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/46348/blob"
                             },
                             {
                                 "type": "directory",
@@ -2058,7 +2145,7 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -2073,9 +2160,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_item_in_label",
-                "args": ("myrepo", "BL001", "src/lib/foo.c"),
+                "args": ("my_repo", "BL001", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels/\w+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/labels/\w+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -2086,14 +2174,14 @@ class TestPlastic(unittest.TestCase):
                         "path": "/fmod/soundproject.fspro",
                         "isUnderXlink": False,
                         "hash": "/2ygGGfoXDq9bbKZJCzj9g==",
-                        "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/771/blob",
+                        "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/771/blob",
                         "repository": {
                             "repId":
                             {
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -2107,9 +2195,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_item_in_label",
-                "args": ("myrepo", "BL001", "src/lib/foo.c"),
+                "args": ("my_repo", "BL001", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels/\w+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/labels/\w+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -2140,7 +2229,7 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -2154,9 +2243,10 @@ class TestPlastic(unittest.TestCase):
             },
             {
                 "method": "get_item_in_label",
-                "args": ("myrepo", "BL001", "src/lib/foo.c"),
+                "args": ("my_repo", "BL001", "src/lib/foo.c"),
                 "rtype": pl.model.Item,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels/\w+/contents/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/labels/\w+/contents/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
@@ -2174,7 +2264,7 @@ class TestPlastic(unittest.TestCase):
                                 "name": "COPYING.LIB",
                                 "path": "/lib/xlink/mono/COPYING.LIB",
                                 "hash": "uFbSL8ON1UNln1XUYeAc7w==",
-                                "content": "http://localhost:9090/api/v1/repos/myrepo/revisions/46348/blob"
+                                "content": "http://localhost:9090/api/v1/repos/my_repo/revisions/46348/blob"
                             },
                             {
                                 "type": "directory",
@@ -2189,7 +2279,78 @@ class TestPlastic(unittest.TestCase):
                                 "id": 1,
                                 "moduleId": 0
                             },
-                            "name": "myrepo",
+                            "name": "my_repo",
+                            "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
+                            "owner":
+                            {
+                                "name": "all",
+                                "isGroup": False
+                            },
+                            "server": "localhost:8084"
+                        }
+                    }
+                }
+            },
+
+            {
+                "method": "get_item_revision",
+                "args": ("my_repo", "src/lib/foo.c#cs:3"),
+                "rtype": pl.model.Item,
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/revisions/[^/]+(/[^/]+)*$"),
+                "expected": {
+                    "status_code": 200, # OK
+                    "content": {
+                        "revisionId": 3526,
+                        "type": "file",
+                        "size": 71,
+                        "name": "foo.c",
+                        "path": "/src/lib/foo.c",
+                        "changeset": 1406,
+                        "branch": "br:/main/scm003",
+                        "hash": "tNYiUA4VyMJxJrK0kic7mg==",
+                        "contents": "http://localhost:9090/api/v1/repos/my_repo/revisions/3526/blob",
+                        "repository": {
+                            "repId":
+                            {
+                                "id": 1,
+                                "moduleId": 0
+                            },
+                            "name": "my_repo",
+                            "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
+                            "owner":
+                            {
+                                "name": "all",
+                                "isGroup": False
+                            },
+                            "server": "localhost:8084"
+                        }
+                    }
+                }
+            },
+            {
+                "method": "get_item_revision",
+                "args": ("my_repo", "src/lib#cs:3"),
+                "rtype": pl.model.Item,
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/revisions/[^/]+(/[^/]+)*$"),
+                "expected": {
+                    "status_code": 200, # OK
+                    "content": {
+                        "revisionId": 5355,
+                        "type": "directory",
+                        "size": 0,
+                        "name": "lib",
+                        "path": "/src/lib",
+                        "changeset": 1406,
+                        "branch": "br:/main/scm003",
+                        "repository": {
+                            "repId":
+                            {
+                                "id": 1,
+                                "moduleId": 0
+                            },
+                            "name": "my_repo",
                             "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
                             "owner":
                             {
@@ -2204,9 +2365,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_item_revision_history_in_branch",
-                "args": ("myrepo", "main/scm003", "src/lib/foo.c"),
+                "args": ("my_repo", "main/scm003", "src/lib/foo.c"),
                 "rtype": Tuple,#pl.model.RevisionHistoryItem,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+/history/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+/history/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -2219,13 +2381,13 @@ class TestPlastic(unittest.TestCase):
                             },
                             "creationDate": "2015-04-09T09:51:20",
                             "comment": "Restore method implementation",
-                            "revisionLink": "http://localhost:9090/api/v1/repos/myrepo/revisions/104",
+                            "revisionLink": "http://localhost:9090/api/v1/repos/my_repo/revisions/104",
                             "changesetId": 3,
-                            "changesetLink": "http://localhost:9090/api/v1/repos/myrepo/changesets/3",
+                            "changesetLink": "http://localhost:9090/api/v1/repos/my_repo/changesets/3",
                             "branchName": "/main",
-                            "branchLink": "http://localhost:9090/api/v1/repos/myrepo/branches/main",
-                            "repositoryName": "myrepo",
-                            "repositoryLink": "http://localhost:9090/api/v1/repos/myrepo"
+                            "branchLink": "http://localhost:9090/api/v1/repos/my_repo/branches/main",
+                            "repositoryName": "my_repo",
+                            "repositoryLink": "http://localhost:9090/api/v1/repos/my_repo"
                         },
                     ]
                 }
@@ -2233,9 +2395,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_item_revision_history_in_changeset",
-                "args": ("myrepo", 5378, "src/lib/foo.c"),
+                "args": ("my_repo", 5378, "src/lib/foo.c"),
                 "rtype": Tuple,#pl.model.RevisionHistoryItem,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets/\d+/history/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets/\d+/history/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -2248,13 +2411,13 @@ class TestPlastic(unittest.TestCase):
                             },
                             "creationDate": "2015-04-09T09:51:20",
                             "comment": "Restore method implementation",
-                            "revisionLink": "http://localhost:9090/api/v1/repos/myrepo/revisions/104",
+                            "revisionLink": "http://localhost:9090/api/v1/repos/my_repo/revisions/104",
                             "changesetId": 3,
-                            "changesetLink": "http://localhost:9090/api/v1/repos/myrepo/changesets/3",
+                            "changesetLink": "http://localhost:9090/api/v1/repos/my_repo/changesets/3",
                             "branchName": "/main",
-                            "branchLink": "http://localhost:9090/api/v1/repos/myrepo/branches/main",
-                            "repositoryName": "myrepo",
-                            "repositoryLink": "http://localhost:9090/api/v1/repos/myrepo"
+                            "branchLink": "http://localhost:9090/api/v1/repos/my_repo/branches/main",
+                            "repositoryName": "my_repo",
+                            "repositoryLink": "http://localhost:9090/api/v1/repos/my_repo"
                         },
                     ]
                 }
@@ -2262,9 +2425,10 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "get_item_revision_history_in_label",
-                "args": ("myrepo", "BL001", "src/lib/foo.c"),
+                "args": ("my_repo", "BL001", "src/lib/foo.c"),
                 "rtype": Tuple,#pl.model.RevisionHistoryItem,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/labels/\w+/history/[^/]+(/[^/]+)*$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/labels/\w+/history/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -2277,13 +2441,13 @@ class TestPlastic(unittest.TestCase):
                             },
                             "creationDate": "2015-04-09T09:51:20",
                             "comment": "Restore method implementation",
-                            "revisionLink": "http://localhost:9090/api/v1/repos/myrepo/revisions/104",
+                            "revisionLink": "http://localhost:9090/api/v1/repos/my_repo/revisions/104",
                             "changesetId": 3,
-                            "changesetLink": "http://localhost:9090/api/v1/repos/myrepo/changesets/3",
+                            "changesetLink": "http://localhost:9090/api/v1/repos/my_repo/changesets/3",
                             "branchName": "/main",
-                            "branchLink": "http://localhost:9090/api/v1/repos/myrepo/branches/main",
-                            "repositoryName": "myrepo",
-                            "repositoryLink": "http://localhost:9090/api/v1/repos/myrepo"
+                            "branchLink": "http://localhost:9090/api/v1/repos/my_repo/branches/main",
+                            "repositoryName": "my_repo",
+                            "repositoryLink": "http://localhost:9090/api/v1/repos/my_repo"
                         },
                     ]
                 }
@@ -2295,7 +2459,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "diff_changesets",
                 "args": ("default", 3, 2),
                 "rtype": Tuple,#[pl.model.Diff],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets/\d+/diff/\d+$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets/\d+/diff/\d+$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -2341,7 +2506,7 @@ class TestPlastic(unittest.TestCase):
                                         "creationDate": "2015-07-16T10:01:32",
                                         "guid": "4d064ea0-4694-41b2-adec-15c3df243dd7",
                                         "branch": {
-                                            "name": "\/main\/scm002",
+                                            "name": "/main/scm002",
                                             "id": 150865,
                                             "parentId": 3,
                                             "lastChangeset": 3,
@@ -2406,7 +2571,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "diff_changeset",
                 "args": ("default", 3),
                 "rtype": Tuple,#[pl.model.Diff],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/changesets/\d+/diff$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/changesets/\d+/diff$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -2452,7 +2618,7 @@ class TestPlastic(unittest.TestCase):
                                         "creationDate": "2015-07-16T10:01:32",
                                         "guid": "4d064ea0-4694-41b2-adec-15c3df243dd7",
                                         "branch": {
-                                            "name": "\/main\/scm002",
+                                            "name": "/main/scm002",
                                             "id": 150865,
                                             "parentId": 3,
                                             "lastChangeset": 3,
@@ -2517,7 +2683,8 @@ class TestPlastic(unittest.TestCase):
                 "method": "diff_branch",
                 "args": ("default", "/main/scm003"),
                 "rtype": Tuple,#[pl.model.Diff],
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/repos/\w+/branches(/\w+)+/diff$", method="get"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="get",
+                                     path=r"^/api/v1/repos/\w+/branches(/\w+)+/diff$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": [
@@ -2563,7 +2730,7 @@ class TestPlastic(unittest.TestCase):
                                         "creationDate": "2015-07-16T10:01:32",
                                         "guid": "4d064ea0-4694-41b2-adec-15c3df243dd7",
                                         "branch": {
-                                            "name": "\/main\/scm002",
+                                            "name": "/main/scm002",
                                             "id": 150865,
                                             "parentId": 3,
                                             "lastChangeset": 3,
@@ -2628,48 +2795,51 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "add_workspace_item",
-                "args": ("mywk", "src/lib"),
+                "args": ("my_wkspace", "src/lib"),
                 "kwargs": dict(add_parents=True,
                                checkout_parent=False,
                                recurse=True),
                 "rtype": pl.model.AffectedPaths,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
                         "affectedPaths": [
-                            "c:\\wkspaces\\mywk\\src\\lib\\descriptor.h",
-                            "c:\\wkspaces\\mywk\\src\\lib\\code.c",
+                            "c:\\wkspaces\\my_wkspace\\src\\lib\\descriptor.h",
+                            "c:\\wkspaces\\my_wkspace\\src\\lib\\code.c",
                         ]
                     }
                 }
             },
             {
                 "method": "add_workspace_item",
-                "args": ("mywk", "src/lib"),
+                "args": ("my_wkspace", "src/lib"),
                 "rtype": pl.model.AffectedPaths,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
                         "affectedPaths": [
-                            "c:\\wkspaces\\mywk\\src\\lib\\descriptor.h",
-                            "c:\\wkspaces\\mywk\\src\\lib\\code.c",
+                            "c:\\wkspaces\\my_wkspace\\src\\lib\\descriptor.h",
+                            "c:\\wkspaces\\my_wkspace\\src\\lib\\code.c",
                         ]
                     }
                 }
             },
             {
                 "method": "add_workspace_item",
-                "args": ("mywk", "src/lib/code.c"),
+                "args": ("my_wkspace", "src/lib/code.c"),
                 "kwargs": dict(recurse=False),
                 "rtype": pl.model.AffectedPaths,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$", method="post"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
                         "affectedPaths": [
-                            "c:\\wkspaces\\mywk\\src\\lib\\code.c",
+                            "c:\\wkspaces\\my_wkspace\\src\\lib\\code.c",
                         ]
                     }
                 }
@@ -2677,14 +2847,15 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "checkout_workspace_item",
-                "args": ("mywk", "src/lib/code.c"),
+                "args": ("my_wkspace", "src/lib/code.c"),
                 "rtype": pl.model.AffectedPaths,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$", method="put"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="put",
+                                     path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
                         "affectedPaths": [
-                            "c:\\wkspaces\\mywk\\src\\lib\\code.c",
+                            "c:\\wkspaces\\my_wkspace\\src\\lib\\code.c",
                         ]
                     }
                 }
@@ -2692,14 +2863,15 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "move_workspace_item",
-                "args": ("mywk", "src/lib/foo.c", "src/bar.c"),
+                "args": ("my_wkspace", "src/lib/foo.c", "src/bar.c"),
                 "rtype": pl.model.AffectedPaths,
-                "urlmatch": urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$", method="patch"),
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="patch",
+                                     path=r"^/api/v1/wkspaces/\w+/content/[^/]+(/[^/]+)*$"),
                 "expected": {
                     "status_code": 200, # OK
                     "content": {
                         "affectedPaths": [
-                            "c:\\wkspaces\\mywk\\src\\bar.c",
+                            "c:\\wkspaces\\my_wkspace\\src\\bar.c",
                         ]
                     }
                 }
@@ -2722,17 +2894,20 @@ class TestPlastic(unittest.TestCase):
         return TestPlastic.response(test)
 
     @classmethod
-    def select_tests_for_tag(cls, tag):
-        return (test for test in cls.test_table if test.get("tag") == tag)
+    def select_tests_for_tag(cls, tag, test_table=None):
+        return (test for test in test_table or cls.test_table
+                if test.get("tag") == tag)
 
     @classmethod
-    def select_tests_for_method(cls, method_name):
-        return (test for test in cls.test_table if test["method"] == method_name)
+    def select_tests_for_method(cls, method_name, test_table=None):
+        return (test for test in test_table or cls.test_table
+                if test["method"] == method_name)
 
     def do_test(self, test, mock=None):
         func = getattr(self.pl, test["method"])
         if mock is None:
-            mock = test["urlmatch"](lambda url, request, test=None: TestPlastic.response(test))
+            mock = test["urlmatch"](lambda url, request, test=None:
+                                    TestPlastic.response(test))
         with HTTMock(partial(mock, test=test)):
             ret = func(*test.get("args", ()), **test.get("kwargs", {}))
         if "rtype" in test:
@@ -2747,16 +2922,13 @@ class TestPlastic(unittest.TestCase):
         repository_name  = "10031411_2021MY_ADCAM10_MID_ECU"
         workspace_name   = "10031411_2021MY_ADCAM10_MID_ECU"
         repository1_name = "repo_new"
-
-        test_table = self.test_table.copy()
-
-        for test in test_table:
-            print(test["method"])
+        for test in self.test_table:
+            #print(test["method"])
             ret = self.do_test(test, mock=self.request_mock)
             #print(ret)
             #r = requests.get('http://google.com/')
             #print(r.status_code)
-            #print(r.content)  # 'Oh hai'
+            #print(r.content) # 'Oh hai'
             #print(r.json())  # 'Oh hai'
 
     # Repositories
@@ -2891,15 +3063,16 @@ class TestPlastic(unittest.TestCase):
         for test in self.select_tests_for_method(method_name):
             ret = self.do_test(test)
 
-    @staticmethod
-    @urlmatch(scheme="http", netloc="localhost:9090", path=r"^/api/v1/wkspaces/\w+/changes$", method="delete")
-    def mock_undo_pending_changes(url, request, test=None):
-        return TestPlastic.response(test)
+    # @staticmethod
+    # @urlmatch(scheme="http", netloc="localhost:9090",
+    #           path=r"^/api/v1/wkspaces/\w+/changes$", method="delete")
+    # def mock_undo_pending_changes(url, request, test=None):
+    #     return TestPlastic.response(test)
 
     def test_undo_pending_changes(self):
         method_name = "undo_pending_changes"
         for test in self.select_tests_for_method(method_name):
-            ret = self.do_test(test, mock=self.mock_undo_pending_changes)
+            ret = self.do_test(test)#, mock=self.mock_undo_pending_changes)
 
     # Workspace Update and Switch
 
@@ -2937,8 +3110,8 @@ class TestPlastic(unittest.TestCase):
 
     # Repository contents
 
-    def test_getItemInRepository(self):
-        method_name = "getItemInRepository"
+    def test_get_item(self):
+        method_name = "get_item"
         for test in self.select_tests_for_method(method_name):
             ret = self.do_test(test)
 
@@ -2954,6 +3127,11 @@ class TestPlastic(unittest.TestCase):
 
     def test_get_item_in_label(self):
         method_name = "get_item_in_label"
+        for test in self.select_tests_for_method(method_name):
+            ret = self.do_test(test)
+
+    def test_get_item_revision(self):
+        method_name = "get_item_revision"
         for test in self.select_tests_for_method(method_name):
             ret = self.do_test(test)
 

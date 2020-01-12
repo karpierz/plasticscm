@@ -104,6 +104,10 @@ apidoc_separate_modules = True
 apidoc_module_first = True
 apidoc_output_dir = 'api'
 
+# -- Options for linkcheck extension -----------------------------------------
+
+linkcheck_ignore = [r'http://localhost(:\d+)*/?', r'http://host:port']
+
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
