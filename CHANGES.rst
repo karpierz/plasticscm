@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.0a3 (2020-01-13)
+--------------------
+- Downgrade needed Sphinx version to '1.8.5' (due to
+  ReadTheDocs limitation).
+
 0.1.0a2 (2020-01-12)
 --------------------
 - Drop support for Python 3.5
