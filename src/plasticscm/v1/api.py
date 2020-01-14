@@ -46,7 +46,7 @@ class API:
         return tuple(self.__json2Repository(repo) for repo in response.json())
 
     @REST.POST("/repos")
-    def create_repository(self, repo_name: str, server: Optional[str]=None) -> Repository:
+    def create_repository(self, repo_name: str, *, server: Optional[str]=None) -> Repository:
         url, action = self.create_repository.REST
         params = {
             "name": repo_name,
@@ -105,7 +105,7 @@ class API:
         return tuple(self.__json2Workspace(wkspace) for wkspace in response.json())
 
     @REST.POST("/wkspaces")
-    def create_workspace(self, wkspace_name: str, wkspace_path: Path,
+    def create_workspace(self, wkspace_name: str, wkspace_path: Path, *,
                          repo_name: Optional[str]=None) -> Workspace:
         url, action = self.create_workspace.REST
         params = {
@@ -153,13 +153,13 @@ class API:
     # Branches
 
     @REST.GET("/repos/{repo_name}/branches")
-    def get_branches(self, repo_name: str, query: Optional[str]=None) -> Tuple[Branch]:
+    def get_branches(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Branch]:
         url, action = self.get_branches.REST
         url = url.format(repo_name=repo_name)
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params,
+        response = action(self.__api_url + url, params=params or None,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Branch(branch) for branch in response.json())
 
@@ -168,7 +168,7 @@ class API:
                       repo_name: str,
                       branch_name: str,
                       origin_type: ObjectType,
-                      origin: Union[str, int],
+                      origin: Union[str, int], *,
                       top_level: bool=False) -> Branch:
         url, action = self.create_branch.REST
         url = url.format(repo_name=repo_name)
@@ -228,18 +228,18 @@ class API:
     # Labels
 
     @REST.GET("/repos/{repo_name}/labels")
-    def get_labels(self, repo_name: str, query: Optional[str]=None) -> Tuple[Label]:
+    def get_labels(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Label]:
         url, action = self.get_labels.REST
         url = url.format(repo_name=repo_name)
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params,
+        response = action(self.__api_url + url, params=params or None,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Label(label) for label in response.json())
 
     @REST.POST("/repos/{repo_name}/labels")
-    def create_label(self, repo_name: str, label_name: str, changeset_id: int,
+    def create_label(self, repo_name: str, label_name: str, changeset_id: int, *,
                      comment: Optional[str]=None, apply_to_xlinks: bool=False) -> Label:
         url, action = self.create_label.REST
         url = url.format(repo_name=repo_name)
@@ -253,13 +253,6 @@ class API:
         response = action(self.__api_url + url, data=params,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Label(response.json())
-        """
-        !!!
-        def create_label(self, repo_name: str, label_name: str):
-            params = {
-                "name": label_name,
-            }
-        """
 
     @REST.GET("/repos/{repo_name}/labels/{label_name}")
     def get_label(self, repo_name: str, label_name: str) -> Label:
@@ -303,19 +296,18 @@ class API:
     # Changesets
 
     @REST.GET("/repos/{repo_name}/changesets")
-    def get_changesets(self, repo_name: str,
-                       query: Optional[str]=None) -> Tuple[Changeset]:
+    def get_changesets(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Changeset]:
         url, action = self.get_changesets.REST
         url = url.format(repo_name=repo_name)
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params,
+        response = action(self.__api_url + url, params=params or None,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Changeset(chset) for chset in response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/changesets")
-    def get_changesets_in_branch(self, repo_name: str, branch_name: str,
+    def get_changesets_in_branch(self, repo_name: str, branch_name: str, *,
                                  query: Optional[str]=None) -> Tuple[Changeset]:
         url, action = self.get_changesets_in_branch.REST
         url = url.format(repo_name=repo_name,
@@ -323,7 +315,7 @@ class API:
         params = {}
         if query is not None:
             params.update({"q": query})
-        response = action(self.__api_url + url, params=params,
+        response = action(self.__api_url + url, params=params or None,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Changeset(chset) for chset in response.json())
 
@@ -351,8 +343,8 @@ class API:
     # Changes
 
     @REST.GET("/wkspaces/{wkspace_name}/changes")
-    def get_pending_changes(self, wkspace_name: str,
-        change_types: List[Change.Type]=[Change.Type.ALL]) -> Tuple[Change]:
+    def get_pending_changes(self, wkspace_name: str, *,
+                            change_types: List[Change.Type]=[Change.Type.ALL]) -> Tuple[Change]:
         url, action = self.get_pending_changes.REST
         url = url.format(wkspace_name=wkspace_name)
         params = {
@@ -462,7 +454,7 @@ class API:
         return self.__json2CheckinStatus(response.json())
 
     @REST.POST("/wkspaces/{wkspace_name}/checkin")
-    def checkin_workspace(self, wkspace_name: str,
+    def checkin_workspace(self, wkspace_name: str, *,
                           paths: Optional[List[str]]=None,
                           comment: Optional[str]=None,
                           recurse: bool=True) -> CheckinStatus:
@@ -672,10 +664,8 @@ class API:
     # Workspace actions
 
     @REST.POST("/wkspaces/{wkspace_name}/content/{item_path}")
-    def add_workspace_item(self, wkspace_name: str,
-                           item_path: str,
-                           add_parents: bool=True,
-                           checkout_parent: bool=True,
+    def add_workspace_item(self, wkspace_name: str, item_path: str, *,
+                           add_parents: bool=True, checkout_parent: bool=True,
                            recurse: bool=True) -> AffectedPaths:
         url, action = self.add_workspace_item.REST
         url = url.format(wkspace_name=wkspace_name, item_path=item_path.strip("/"))

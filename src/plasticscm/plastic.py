@@ -10,6 +10,7 @@ from typing    import List, Tuple, Optional, Union
 from types     import ModuleType
 from pathlib   import Path
 from importlib import import_module
+import shutil
 
 from public import public
 
@@ -89,6 +90,18 @@ class Plastic:
         """Classes of objects provided by the API."""
         return self.__model
 
+    # Utils
+
+    def get_cm_location(self) -> Path:
+        """Get the path of cm.
+        Raises:
+            FileNotFoundError: If cm executable was not found.
+        """
+        path = shutil.which("cm")
+        if path is None:
+            raise FileNotFoundError("'cm' executable was not found")
+        return Path(path)
+
     # Repositories
 
     def get_repositories(self) -> Tuple[Repository]:
@@ -100,8 +113,7 @@ class Plastic:
         """
         return self.__api.get_repositories()
 
-    def create_repository(self, repo_name: str, *,
-                          server: Optional[str]=None) -> Repository:
+    def create_repository(self, repo_name: str, *, server: Optional[str]=None) -> Repository:
         """Create a repository in a server.
 
         Args:
@@ -114,7 +126,7 @@ class Plastic:
             The newly created repository will be returned once the operation
             is completed.
         """
-        return self.__api.create_repository(repo_name, server)
+        return self.__api.create_repository(repo_name, server=server)
 
     def get_repository(self, repo_name: str) -> Repository:
         """Gets the information concerning a single repository.
@@ -173,7 +185,7 @@ class Plastic:
             The newly created workspace will be returned once the operation
             is completed.
         """
-        return self.__api.create_workspace(wkspace_name, wkspace_path, repo_name)
+        return self.__api.create_workspace(wkspace_name, wkspace_path, repo_name=repo_name)
 
     def get_workspace(self, wkspace_name: str) -> Workspace:
         """Gets the information concerning a single workspace.
@@ -187,8 +199,7 @@ class Plastic:
         """
         return self.__api.get_workspace(wkspace_name)
 
-    def rename_workspace(self, wkspace_name: str,
-                         wkspace_new_name: str) -> Workspace:
+    def rename_workspace(self, wkspace_name: str, wkspace_new_name: str) -> Workspace:
         """Rename a workspace.
 
         Args:
@@ -211,8 +222,7 @@ class Plastic:
 
     # Branches
 
-    def get_branches(self, repo_name: str,
-                     query: Optional[str]=None) -> Tuple[Branch]:
+    def get_branches(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Branch]:
         """Gets branches in a repository, along with their information.
 
         Args:
@@ -223,13 +233,13 @@ class Plastic:
         Returns:
             A list of all branches in a repository.
         """
-        return self.__api.get_branches(repo_name, query)
+        return self.__api.get_branches(repo_name, query=query)
 
     def create_branch(self,
                       repo_name: str,
                       branch_name: str,
                       origin_type: ObjectType,
-                      origin: Union[str, int],
+                      origin: Union[str, int], *,
                       top_level: bool=False) -> Branch:
         """Create a new branch.
 
@@ -250,7 +260,7 @@ class Plastic:
             is completed.
         """
         return self.__api.create_branch(repo_name, branch_name,
-                                        origin_type, origin, top_level)
+                                        origin_type, origin, top_level=top_level)
 
     def get_branch(self, repo_name: str, branch_name: str) -> Branch:
         """Gets information about a single branch in a repository.
@@ -267,8 +277,8 @@ class Plastic:
         """
         return self.__api.get_branch(repo_name, branch_name)
 
-    def rename_branch(self, repo_name: str,
-                      branch_name: str, branch_new_name: str) -> Branch:
+    def rename_branch(self, repo_name: str, branch_name: str,
+                      branch_new_name: str) -> Branch:
         """Rename a branch.
 
         Args:
@@ -284,8 +294,7 @@ class Plastic:
             The updated branch will be returned once the operation
             is completed.
         """
-        return self.__api.rename_branch(repo_name,
-                                        branch_name, branch_new_name)
+        return self.__api.rename_branch(repo_name, branch_name, branch_new_name)
 
     def delete_branch(self, repo_name: str, branch_name: str) -> None:
         """Remove a branch.
@@ -300,8 +309,7 @@ class Plastic:
 
     # Labels
 
-    def get_labels(self, repo_name: str,
-                   query: Optional[str]=None) -> Tuple[Label]:
+    def get_labels(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Label]:
         """Gets labels in a repository, along with their information.
 
         Args:
@@ -312,7 +320,7 @@ class Plastic:
         Returns:
             A list of all labels in a repository.
         """
-        return self.__api.get_labels(repo_name, query)
+        return self.__api.get_labels(repo_name, query=query)
 
     def create_label(self, repo_name: str, label_name: str, changeset_id: int, *,
                      comment: Optional[str]=None, apply_to_xlinks: bool=False) -> Label:
@@ -333,7 +341,7 @@ class Plastic:
             is completed.
         """
         return self.__api.create_label(repo_name, label_name, changeset_id,
-                                       comment, apply_to_xlinks)
+                                       comment=comment, apply_to_xlinks=apply_to_xlinks)
 
     def get_label(self, repo_name: str, label_name: str) -> Label:
         """Gets information about a single label.
@@ -348,8 +356,7 @@ class Plastic:
         """
         return self.__api.get_label(repo_name, label_name)
 
-    def rename_label(self, repo_name: str,
-                     label_name: str, label_new_name: str) -> Label:
+    def rename_label(self, repo_name: str, label_name: str, label_new_name: str) -> Label:
         """Rename a label.
 
         Args:
@@ -374,8 +381,7 @@ class Plastic:
 
     # Changesets
 
-    def get_changesets(self, repo_name: str,
-                       query: Optional[str]=None) -> Tuple[Changeset]:
+    def get_changesets(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Changeset]:
         """Gets changesets in a repository, along with their information.
 
         Args:
@@ -386,9 +392,9 @@ class Plastic:
         Returns:
             A list of all changesets in a repository.
         """
-        return self.__api.get_changesets(repo_name, query)
+        return self.__api.get_changesets(repo_name, query=query)
 
-    def get_changesets_in_branch(self, repo_name: str, branch_name: str,
+    def get_changesets_in_branch(self, repo_name: str, branch_name: str, *,
                                  query: Optional[str]=None) -> Tuple[Changeset]:
         """Gets changesets in a given branch, along with their information.
 
@@ -403,8 +409,7 @@ class Plastic:
         Returns:
             A list of all changesets in a given branch.
         """
-        return self.__api.get_changesets_in_branch(repo_name, branch_name,
-                                                   query)
+        return self.__api.get_changesets_in_branch(repo_name, branch_name, query=query)
 
     def get_changeset(self, repo_name: str, changeset_id: int) -> Changeset:
         """Gets information about a single changeset.
@@ -422,7 +427,7 @@ class Plastic:
     # Changes
 
     def get_pending_changes(self, wkspace_name: str, *,
-        change_types: Optional[List[Change.Type]]=None) -> Tuple[Change]:
+                            change_types: Optional[List[Change.Type]]=None) -> Tuple[Change]:
         """Gets pending changes in a workspace, along with their information.
 
         Args:
@@ -437,10 +442,9 @@ class Plastic:
         if change_types is None:
             return self.__api.get_pending_changes(wkspace_name)
         else:
-            return self.__api.get_pending_changes(wkspace_name, change_types)
+            return self.__api.get_pending_changes(wkspace_name, change_types=change_types)
 
-    def undo_pending_changes(self, wkspace_name: str,
-                             paths: List[Path]) -> AffectedPaths:
+    def undo_pending_changes(self, wkspace_name: str, paths: List[Path]) -> AffectedPaths:
         """Deletes the pending changes in a workspace.
         Paths must be a list of paths representing files with pending changes
         to be undone.
@@ -491,8 +495,7 @@ class Plastic:
         return self.__api.get_workspace_switch_status(wkspace_name)
 
     def switch_workspace(self, wkspace_name: str,
-                         object_type: ObjectType,
-                         object: Union[str, int]) -> OperationStatus:
+                         object_type: ObjectType, object: Union[str, int]) -> OperationStatus:
         """Switch the workspace to a branch, changeset or label.
 
         Args:
@@ -542,7 +545,7 @@ class Plastic:
             The status of the workspace checkin operation.
         """
         return self.__api.checkin_workspace(wkspace_name,
-                                            paths, comment, recurse)
+                                            paths=paths, comment=comment, recurse=recurse)
 
     # Repository contents
 
@@ -558,8 +561,7 @@ class Plastic:
         """
         return self.__api.get_item(repo_name, item_path)
 
-    def get_item_in_branch(self, repo_name: str, branch_name: str,
-                           item_path: str) -> Item:
+    def get_item_in_branch(self, repo_name: str, branch_name: str, item_path: str) -> Item:
         """Gets information about a single item in the desired branch.
 
         Args:
@@ -574,8 +576,7 @@ class Plastic:
         """
         return self.__api.get_item_in_branch(repo_name, branch_name, item_path)
 
-    def get_item_in_changeset(self, repo_name: str, changeset_id: int,
-                              item_path: str) -> Item:
+    def get_item_in_changeset(self, repo_name: str, changeset_id: int, item_path: str) -> Item:
         """Gets information about a single item in the desired changeset.
 
         Args:
@@ -588,8 +589,7 @@ class Plastic:
         """
         return self.__api.get_item_in_changeset(repo_name, changeset_id, item_path)
 
-    def get_item_in_label(self, repo_name: str, label_name: str,
-                          item_path: str) -> Item:
+    def get_item_in_label(self, repo_name: str, label_name: str, item_path: str) -> Item:
         """Gets information about a single item in the desired label.
 
         Args:
@@ -630,8 +630,7 @@ class Plastic:
         Returns:
             A list of all item's revision history items for a given branch.
         """
-        return self.__api.get_item_revision_history_in_branch(repo_name, branch_name,
-                                                              item_path)
+        return self.__api.get_item_revision_history_in_branch(repo_name, branch_name, item_path)
 
     def get_item_revision_history_in_changeset(self, repo_name: str, changeset_id: int,
                                                item_path: str) -> Tuple[RevisionHistoryItem]:
@@ -660,8 +659,7 @@ class Plastic:
         Returns:
             A list of all item's revision history items for a given label.
         """
-        return self.__api.get_item_revision_history_in_label(repo_name, label_name,
-                                                             item_path)
+        return self.__api.get_item_revision_history_in_label(repo_name, label_name, item_path)
 
     # Diff
 
@@ -733,7 +731,9 @@ class Plastic:
             The paths that were affected by the addition operation.
         """
         return self.__api.add_workspace_item(wkspace_name, item_path,
-                                             add_parents, checkout_parent, recurse)
+                                             add_parents=add_parents,
+                                             checkout_parent=checkout_parent,
+                                             recurse=recurse)
 
     def checkout_workspace_item(self, wkspace_name: str, item_path: str) -> AffectedPaths:
         """Mark workspace item as ready to modify.
@@ -747,8 +747,8 @@ class Plastic:
         """
         return self.__api.checkout_workspace_item(wkspace_name, item_path)
 
-    def move_workspace_item(self, wkspace_name: str, item_path: str,
-                            dest_item_path: str) -> AffectedPaths:
+    def move_workspace_item(self, wkspace_name: str,
+                            item_path: str, dest_item_path: str) -> AffectedPaths:
         """Move or rename a file or directory in the workspace.
 
         Args:
