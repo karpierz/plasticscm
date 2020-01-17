@@ -355,7 +355,8 @@ class API:
         return tuple(self.__json2Change(change) for change in response.json())
 
     @REST.DELETE("/wkspaces/{wkspace_name}/changes")
-    def undo_pending_changes(self, wkspace_name: str, paths: List[Path]) -> AffectedPaths:
+    def undo_pending_changes(self, wkspace_name: str,
+                             paths: List[Union[str, Path]]) -> AffectedPaths:
         url, action = self.undo_pending_changes.REST
         url = url.format(wkspace_name=wkspace_name)
         params = {
@@ -369,9 +370,9 @@ class API:
         return Change(# ???
                       changes=change["changes"],
                       path=Path(change["path"]),
-                      old_path=Path(change["oldPath"]),
+                      old_path=Path(change["oldPath"]) if "oldPath" in change else None,
                       server_path=change["serverPath"],
-                      old_server_path=change["oldServerPath"],
+                      old_server_path=change["oldServerPath"] if "oldServerPath" in change else None,
                       is_xlink=change["isXlink"],
                       local_info=LocalInfo(
                           modified_time=isoparse(change["localInfo"]["modifiedTime"]),

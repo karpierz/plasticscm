@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.0a6 (2020-01-17)
+--------------------
+- Fixes for get_pending_changes() and undo_pending_changes().
+
 0.1.0a5 (2020-01-16)
 --------------------
 - Added ReadTheDocs config file.

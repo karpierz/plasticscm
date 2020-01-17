@@ -444,7 +444,8 @@ class Plastic:
         else:
             return self.__api.get_pending_changes(wkspace_name, change_types=change_types)
 
-    def undo_pending_changes(self, wkspace_name: str, paths: List[Path]) -> AffectedPaths:
+    def undo_pending_changes(self, wkspace_name: str,
+                             paths: List[Union[str, Path]]) -> AffectedPaths:
         """Deletes the pending changes in a workspace.
         Paths must be a list of paths representing files with pending changes
         to be undone.

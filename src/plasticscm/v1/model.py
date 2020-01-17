@@ -343,21 +343,21 @@ class Change(base.Change):
     def __new__(cls, *,
                 changes: List[str],
                 path: Path,
-                old_path: Path,
+                old_path: Optional[Path],
                 server_path: str,
-                old_server_path: str,
+                old_server_path: Optional[str],
                 is_xlink: bool,
                 local_info: LocalInfo,
                 revision_info: RevisionInfo):
         self = super().__new__(cls)
-        self.__changes: List[str]          = changes  # Pending of revision
-        self.__path: Path                  = path
-        self.__old_path: Path              = old_path
-        self.__server_path: str            = server_path
-        self.__old_server_path: str        = old_server_path
-        self.__is_xlink: bool              = is_xlink        
-        self.__local_info: LocalInfo       = local_info      
-        self.__revision_info: RevisionInfo = revision_info   
+        self.__changes: List[str]             = changes  # Pending of revision
+        self.__path: Path                     = path
+        self.__old_path: Optional[Path]       = old_path
+        self.__server_path: str               = server_path
+        self.__old_server_path: Optional[str] = old_server_path
+        self.__is_xlink: bool                 = is_xlink        
+        self.__local_info: LocalInfo          = local_info      
+        self.__revision_info: RevisionInfo    = revision_info   
         return self
 
     changes         = property(lambda self: self.__changes)
