@@ -1,6 +1,6 @@
 # Copyright (c) 2019-2020 Adam Karpierz
 # Licensed under the zlib/libpng License
-# https://opensource.org/licenses/zlib
+# https://opensource.org/licenses/Zlib
 
 __all__ = ('__title__', '__summary__', '__uri__', '__version_info__',
            '__version__', '__author__', '__maintainer__', '__email__',
@@ -19,4 +19,4 @@ __maintainer__   = "Adam Karpierz"
 __email__        = "adam@karpierz.net"
 __copyright__    = "Copyright (c) 2019-2020, {0}".format(__author__)
 __license__      = "zlib/libpng License ; {0}".format(
-                   "https://opensource.org/licenses/zlib")
+                   "https://opensource.org/licenses/Zlib")

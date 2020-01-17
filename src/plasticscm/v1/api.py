@@ -1,6 +1,6 @@
 # Copyright (c) 2019-2020 Adam Karpierz
 # Licensed under the zlib/libpng License
-# https://opensource.org/licenses/zlib
+# https://opensource.org/licenses/Zlib
 
 from typing import List, Tuple, Dict, Optional, Union
 from datetime import datetime
