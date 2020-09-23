@@ -118,4 +118,5 @@ class Diff:
 class AffectedPaths:
     """PlasticSCM's affected paths.
 
-    Represents the paths that were affected by a undo operation."""
+    Represents the paths that were affected by a undo operation.
+    """

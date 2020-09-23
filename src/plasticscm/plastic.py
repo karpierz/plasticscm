@@ -24,8 +24,8 @@ class Plastic:
 
     @classmethod
     def from_config(cls,
-                    plastic_id: Optional[str]=None,
-                    config_files: Optional[List[str]]=None) -> 'Plastic':
+                    plastic_id: Optional[str] = None,
+                    config_files: Optional[List[str]] = None) -> 'Plastic':
         """Create a new PlasticSCM API wrapper from configuration files.
 
         Args:
@@ -50,12 +50,12 @@ class Plastic:
                    api_version=config.api_version)
 
     def __new__(cls,
-                url: str="http://localhost:9090", *,
-                http_username: Optional[str]=None,
-                http_password: Optional[str]=None,
-                ssl_verify: bool=True,
-                timeout: Union[int, float]=None,
-                api_version: Union[str, int, float]="1"):
+                url: str = "http://localhost:9090", *,
+                http_username: Optional[str] = None,
+                http_password: Optional[str] = None,
+                ssl_verify: bool = True,
+                timeout: Union[int, float] = None,
+                api_version: Union[str, int, float] = "1"):
         """Instantiates a new PlasticSCM API wrapper.
 
         Args:
@@ -68,7 +68,7 @@ class Plastic:
         self = super().__new__(cls)
         self.__api_version = api_version = str(api_version)
         # Headers that will be used in request to PlasticSCM
-        #self.headers = {"User-Agent": "%s/%s" % (__title__, __version__)}
+        # self.headers = {"User-Agent": "%s/%s" % (__title__, __version__)}
         api   = import_module(".v{}.api".format(api_version),   __package__)
         model = import_module(".v{}.model".format(api_version), __package__)
         self.__api = api.API(url,
@@ -77,7 +77,7 @@ class Plastic:
                              ssl_verify=ssl_verify,
                              timeout=timeout)
         self.__model = model
-        #self.repositories = model.RepositoryManager(self)
+        # self.repositories = model.RepositoryManager(self)
         return self
 
     @property
@@ -114,7 +114,7 @@ class Plastic:
         """
         return self.__api.get_repositories()
 
-    def create_repository(self, repo_name: str, *, server: Optional[str]=None) -> Repository:
+    def create_repository(self, repo_name: str, *, server: Optional[str] = None) -> Repository:
         """Create a repository in a server.
 
         Args:
@@ -174,7 +174,7 @@ class Plastic:
         return self.__api.get_workspaces()
 
     def create_workspace(self, wkspace_name: str, wkspace_path: Path, *,
-                         repo_name: Optional[str]=None) -> Workspace:
+                         repo_name: Optional[str] = None) -> Workspace:
         """Create a new workspace.
 
         Args:
@@ -223,7 +223,7 @@ class Plastic:
 
     # Branches
 
-    def get_branches(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Branch]:
+    def get_branches(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Branch]:
         """Gets branches in a repository, along with their information.
 
         Args:
@@ -241,7 +241,7 @@ class Plastic:
                       branch_name: str,
                       origin_type: ObjectType,
                       origin: Union[str, int], *,
-                      top_level: bool=False) -> Branch:
+                      top_level: bool = False) -> Branch:
         """Create a new branch.
 
         Args:
@@ -310,7 +310,7 @@ class Plastic:
 
     # Labels
 
-    def get_labels(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Label]:
+    def get_labels(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Label]:
         """Gets labels in a repository, along with their information.
 
         Args:
@@ -324,7 +324,7 @@ class Plastic:
         return self.__api.get_labels(repo_name, query=query)
 
     def create_label(self, repo_name: str, label_name: str, changeset_id: int, *,
-                     comment: Optional[str]=None, apply_to_xlinks: bool=False) -> Label:
+                     comment: Optional[str] = None, apply_to_xlinks: bool = False) -> Label:
         """Create a new label and applies it to a given changeset.
 
         Args:
@@ -381,7 +381,7 @@ class Plastic:
 
     # Changesets
 
-    def get_changesets(self, repo_name: str, *, query: Optional[str]=None) -> Tuple[Changeset]:
+    def get_changesets(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Changeset]:
         """Gets changesets in a repository, along with their information.
 
         Args:
@@ -395,7 +395,7 @@ class Plastic:
         return self.__api.get_changesets(repo_name, query=query)
 
     def get_changesets_in_branch(self, repo_name: str, branch_name: str, *,
-                                 query: Optional[str]=None) -> Tuple[Changeset]:
+                                 query: Optional[str] = None) -> Tuple[Changeset]:
         """Gets changesets in a given branch, along with their information.
 
         Args:
@@ -427,7 +427,7 @@ class Plastic:
     # Changes
 
     def get_pending_changes(self, wkspace_name: str, *,
-                            change_types: Optional[List[Change.Type]]=None) -> Tuple[Change]:
+                            change_types: Optional[List[Change.Type]] = None) -> Tuple[Change]:
         """Gets pending changes in a workspace, along with their information.
 
         Args:
@@ -528,9 +528,9 @@ class Plastic:
         return self.__api.get_workspace_checkin_status(wkspace_name)
 
     def checkin_workspace(self, wkspace_name: str, *,
-                          paths: Optional[List[str]]=None,
-                          comment: Optional[str]=None,
-                          recurse: bool=True) -> CheckinStatus:
+                          paths: Optional[List[str]] = None,
+                          comment: Optional[str] = None,
+                          recurse: bool = True) -> CheckinStatus:
         """Stores changes in the repository.
 
         Args:
@@ -714,13 +714,13 @@ class Plastic:
     # Workspace actions
 
     def add_workspace_item(self, wkspace_name: str, item_path: str, *,
-                           add_parents: bool=True, checkout_parent: bool=True,
-                           recurse: bool=True) -> AffectedPaths:
+                           add_parents: bool = True, checkout_parent: bool = True,
+                           recurse: bool = True) -> AffectedPaths:
         """Add an item to version control.
 
         Args:
             wkspace_name:    The name of the workspace.
-            item_path:       The path of the item to be added. 
+            item_path:       The path of the item to be added.
             add_parents:     If True, the command will add any parent
                              directories which are not under version control
                              yet (default: True).

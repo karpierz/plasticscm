@@ -40,7 +40,7 @@ def inherit_docs(cls: type) -> type:
         else:
             try:
                 attr.__doc__ = parent_doc
-            except: # some __doc__'s are not writable
+            except Exception:  # some __doc__'s are not writable
                 pass
         """
         if isinstance(attr, types.FunctionType):
@@ -66,13 +66,13 @@ def inherit_docs(cls: type) -> type:
 def inherit_docs(cls):
     for name in dir(cls):
         func = getattr(cls, name)
-        if func.__doc__: 
+        if func.__doc__:
             continue
         for parent in cls.mro()[1:]:
             if not hasattr(parent, name):
                 continue
             doc = getattr(parent, name).__doc__
-            if not doc: 
+            if not doc:
                 continue
             try:
                 # __doc__'s of properties are read-only.
@@ -88,10 +88,10 @@ def inherit_docs(cls):
                 else:
                     try:
                         func = func.__func__ # for instancemethod's
-                    except:
+                    except Exception:
                         pass
                     func.__doc__ = doc
-            except: # some __doc__'s are not writable
+            except Exception:  # some __doc__'s are not writable
                 pass
             break
     return cls

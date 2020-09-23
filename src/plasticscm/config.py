@@ -18,8 +18,8 @@ class PlasticConfigParser:
     )
 
     def __init__(self,
-                 plastic_id: Optional[str]=None,
-                 config_files: Optional[List[Path]]=None):
+                 plastic_id: Optional[str] = None,
+                 config_files: Optional[List[Path]] = None):
         self.plastic_id = plastic_id
         config_files = config_files or self._DEFAULT_CONFIG_FILES
         if all(not file.is_file() for file in config_files):

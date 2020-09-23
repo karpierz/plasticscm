@@ -10,7 +10,7 @@ __title__        = "plasticscm"
 __summary__      = "Python package providing access to the PlasticSCM client API."
 __uri__          = "https://pypi.org/project/plasticscm/"
 __version_info__ = type("version_info", (), dict(major=0, minor=2, micro=0,
-                        releaselevel="alpha", serial=1))
+                        releaselevel="alpha", serial=2))
 __version__      = "{0.major}.{0.minor}.{0.micro}{1}{2}".format(__version_info__,
                    dict(alpha="a", beta="b", candidate="rc", final="",
                         post=".post", dev=".dev")[__version_info__.releaselevel],

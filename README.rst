@@ -8,6 +8,8 @@ Overview
 
 TBD...
 
+`PyPI record`_.
+
 Requirements
 ============
 
@@ -32,34 +34,12 @@ Prerequisites:
 
 To install run:
 
-.. parsed-literal::
+  .. parsed-literal::
 
     python -m pip install --upgrade |package|
 
 Development
 ===========
-
-Visit `development page`_.
-
-Installation from sources:
-
-clone the sources:
-
-.. parsed-literal::
-
-    git clone |respository| |package|
-
-and run:
-
-.. parsed-literal::
-
-    python -m pip install ./|package|
-
-or on development mode:
-
-.. parsed-literal::
-
-    python -m pip install --editable ./|package|
 
 Prerequisites:
 
@@ -67,11 +47,32 @@ Prerequisites:
 
     python -m pip install --upgrade tox
 
+Visit `development page`_.
+
+Installation from sources:
+
+clone the sources:
+
+  .. parsed-literal::
+
+    git clone |respository| |package|
+
+and run:
+
+  .. parsed-literal::
+
+    python -m pip install ./|package|
+
+or on development mode:
+
+  .. parsed-literal::
+
+    python -m pip install --editable ./|package|
+
 License
 =======
 
   | Copyright (c) 2019-2020 Adam Karpierz
-  |
   | Licensed under the zlib/libpng License
   | https://opensource.org/licenses/Zlib
   | Please refer to the accompanying LICENSE file.
@@ -85,3 +86,4 @@ Authors
 .. |package_bold| replace:: **plasticscm**
 .. |respository| replace:: https://github.com/karpierz/plasticscm.git
 .. _development page: https://github.com/karpierz/plasticscm/
+.. _PyPI record: https://pypi.org/project/plasticscm/

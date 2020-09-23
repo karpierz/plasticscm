@@ -31,7 +31,7 @@ class RepId(base.RepId):
 @inherit_docs
 class Owner(base.Owner):
 
-    def __new__(cls, *, name: str, is_group: bool=False):
+    def __new__(cls, *, name: str, is_group: bool = False):
         self = super().__new__(cls)
         self.__name: str      = name
         self.__is_group: bool = is_group
@@ -235,9 +235,9 @@ class RevisionInfo(base.RevisionInfo):
                 id: int,
                 parent_id: int,
                 item_id: int,
-                type: str, # "text" # TODO change this to enum if possible
+                type: str,  # "text" # TODO change this to enum if possible
                 size: int,
-                hash: str, # str # "tLq1aWZ24MGupAHKZAgYFA=="
+                hash: str,  # str # "tLq1aWZ24MGupAHKZAgYFA=="
                 branch_id: int,
                 changeset_id: int,
                 is_checked_out: bool,
@@ -278,7 +278,7 @@ class RevisionInfo(base.RevisionInfo):
 class RevisionHistoryItem(base.RevisionHistoryItem):
 
     def __new__(cls, *,
-                type: str, # "text"
+                type: str,  # "text"
                 revision_id: int,
                 revision_link: Optional[str],
                 changeset_id: int,
@@ -355,9 +355,9 @@ class Change(base.Change):
         self.__old_path: Optional[Path]       = old_path
         self.__server_path: str               = server_path
         self.__old_server_path: Optional[str] = old_server_path
-        self.__is_xlink: bool                 = is_xlink        
-        self.__local_info: LocalInfo          = local_info      
-        self.__revision_info: RevisionInfo    = revision_info   
+        self.__is_xlink: bool                 = is_xlink
+        self.__local_info: LocalInfo          = local_info
+        self.__revision_info: RevisionInfo    = revision_info
         return self
 
     changes         = property(lambda self: self.__changes)
@@ -375,12 +375,12 @@ class Change(base.Change):
 class OperationStatus(base.OperationStatus):
 
     def __new__(cls, *,
-                status:  Optional[str]=None,
-                message: Optional[str]=None,
-                total_files: Optional[int]=None,
-                total_bytes: Optional[int]=None,
-                updated_files: Optional[int]=None,
-                updated_bytes: Optional[int]=None):
+                status:  Optional[str] = None,
+                message: Optional[str] = None,
+                total_files: Optional[int] = None,
+                total_bytes: Optional[int] = None,
+                updated_files: Optional[int] = None,
+                updated_bytes: Optional[int] = None):
         self = super().__new__(cls)
         self.__status: Optional[str]  = status
         self.__message: Optional[str] = message
@@ -392,10 +392,10 @@ class OperationStatus(base.OperationStatus):
 
     status        = property(lambda self: self.__status)
     message       = property(lambda self: self.__message)
-    total_files   = property(lambda self: self.__total_files   or 0) 
-    total_bytes   = property(lambda self: self.__total_bytes   or 0) 
-    updated_files = property(lambda self: self.__updated_files or 0) 
-    updated_bytes = property(lambda self: self.__updated_bytes or 0) 
+    total_files   = property(lambda self: self.__total_files   or 0)
+    total_bytes   = property(lambda self: self.__total_bytes   or 0)
+    updated_files = property(lambda self: self.__updated_files or 0)
+    updated_bytes = property(lambda self: self.__updated_bytes or 0)
 
 
 @public
@@ -403,10 +403,10 @@ class OperationStatus(base.OperationStatus):
 class CheckinStatus(base.CheckinStatus):
 
     def __new__(cls, *,
-                status: Optional[str]=None,
-                message: Optional[str]=None,
-                total_size: Optional[int]=None,
-                transferred_size: Optional[int]=None):
+                status: Optional[str] = None,
+                message: Optional[str] = None,
+                total_size: Optional[int] = None,
+                transferred_size: Optional[int] = None):
         self = super().__new__(cls)
         self.__status: Optional[str]      = status
         self.__message: Optional[str]     = message
@@ -536,12 +536,12 @@ class Diff(base.Diff):
                 status: Status,
                 path: str,
                 source_path: Optional[str],
-                revision_id: Optional[int], # really optional ???
+                revision_id: Optional[int],  # really optional ???
                 source_revision_id: Optional[int],
                 is_directory: bool,
-                size: Optional[int], # really optional ???
-                hash: Optional[str],        # str # "u0gJQzQnjLNUUHRI1+QQLg=="
-                source_hash: Optional[str], # str # "u0gJQzQnjLNUUHRI1+QQLg=="
+                size: Optional[int],  # really optional ???
+                hash: Optional[str],         # str # "u0gJQzQnjLNUUHRI1+QQLg=="
+                source_hash: Optional[str],  # str # "u0gJQzQnjLNUUHRI1+QQLg=="
                 is_under_xlink: bool,
                 xlink: Optional[XLink],
                 base_xlink: Optional[XLink],
@@ -585,7 +585,7 @@ class Diff(base.Diff):
     xlink              = property(lambda self: self.__xlink)
     base_xlink         = property(lambda self: self.__base_xlink)
     merges             = property(lambda self: self.__merges)
-    is_item_FS_protection_changed = property(lambda self: 
+    is_item_FS_protection_changed = property(lambda self:
                                     self.__is_item_FS_protection_changed)
     item_FS_protection = property(lambda self: self.__item_FS_protection)
     repository         = property(lambda self: self.__repository)
@@ -602,4 +602,4 @@ class AffectedPaths(base.AffectedPaths):
         self.__paths: List[Path] = paths
         return self
 
-    paths = property(lambda self: self.__paths) 
+    paths = property(lambda self: self.__paths)
