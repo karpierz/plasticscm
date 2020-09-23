@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.0a1 (2020-09-23)
+--------------------
+- Add support for Python 3.9.
+- Setup general update and cleanup.
+
 0.1.0a6 (2020-01-17)
 --------------------
 - Fixes for get_pending_changes() and undo_pending_changes().

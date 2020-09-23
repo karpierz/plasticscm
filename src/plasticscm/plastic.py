@@ -94,6 +94,7 @@ class Plastic:
 
     def get_cm_location(self) -> Path:
         """Get the path of cm.
+
         Raises:
             FileNotFoundError: If cm executable was not found.
         """
@@ -326,7 +327,6 @@ class Plastic:
                      comment: Optional[str]=None, apply_to_xlinks: bool=False) -> Label:
         """Create a new label and applies it to a given changeset.
 
-
         Args:
             repo_name:       The name of the future host repository.
             label_name:      The name of the new label.
@@ -447,6 +447,7 @@ class Plastic:
     def undo_pending_changes(self, wkspace_name: str,
                              paths: List[Union[str, Path]]) -> AffectedPaths:
         """Deletes the pending changes in a workspace.
+
         Paths must be a list of paths representing files with pending changes
         to be undone.
 
