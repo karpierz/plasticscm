@@ -2,7 +2,7 @@
 # Licensed under the zlib/libpng License
 # https://opensource.org/licenses/Zlib
 
-from .__about__  import *  # noqa
-from .plastic    import *  # noqa
+from .__about__  import * ; del __about__  # noqa
+from ._plastic   import * ; del _plastic   # noqa
 from .exceptions import *  # noqa
-del __about__, plastic, config, model
+del config, model
