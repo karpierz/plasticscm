@@ -1,6 +1,7 @@
 PlasticSCM documentation
 ========================
 
+.. _readme:
 .. include:: README.rst
 
 Contents

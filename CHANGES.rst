@@ -1,31 +1,23 @@
 Changelog
 =========
 
-0.2.0a3 (2020-09-29)
+0.2.0a4 (2020-10-17)
 --------------------
 - Add support for Python 3.9.
 - General update, improvements and cleanup.
 - Setup update and cleanup.
+- Fixed docs setup.
 
 0.1.0a6 (2020-01-17)
 --------------------
-- Fixes for get_pending_changes() and undo_pending_changes().
-
-0.1.0a5 (2020-01-16)
---------------------
-- Added ReadTheDocs config file.
-- Setup update.
-
-0.1.0a4 (2020-01-14)
---------------------
+- Drop support for Python 3.5
 - Added get_cm_location().
 - | Forced 'query' to be a keyword-only argument for get_branches(),
   | get_labels(), get_changesets().
 - Forced 'top_level' to be a keyword-only argument for create_branch().
-
-0.1.0a2 (2020-01-12)
---------------------
-- Drop support for Python 3.5
+- Fixes for get_pending_changes() and undo_pending_changes().
+- Added ReadTheDocs config file.
+- Setup update.
 
 0.1.0a1 (2020-01-12)
 --------------------
