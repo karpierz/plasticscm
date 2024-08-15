@@ -1,3 +1,7 @@
+#
+# cm api --help
+#
+
 from pathlib import Path
 from pprint import pprint
 from plasticscm import Plastic

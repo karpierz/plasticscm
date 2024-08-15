@@ -1,8 +1,9 @@
-# Copyright (c) 2019-2020 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# Copyright (c) 2019 Adam Karpierz
+# SPDX-License-Identifier: Zlib
 
-from .__about__  import * ; del __about__  # noqa
-from ._plastic   import * ; del _plastic   # noqa
+from .__about__ import * ; del __about__  # noqa
+
+from ._plastic   import * ; del _plastic  # noqa
 from .exceptions import *  # noqa
-del config, model
+from . import config ; del config
+from . import model  ; del model

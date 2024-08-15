@@ -1,6 +1,5 @@
-# Copyright (c) 2019-2020 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# Copyright (c) 2019 Adam Karpierz
+# SPDX-License-Identifier: Zlib
 
 import inspect
 import enum
@@ -10,7 +9,10 @@ from public import public
 
 @public
 def inherit_docs(cls: type) -> type:
-    """Copies all the missing docstrings of derived attributes
+    """
+    Inherit attributes from the parent classes.
+
+    Copies all the missing docstrings of derived attributes
     (methods, properties, attrs) from the parent classes.
 
     Args:
@@ -62,6 +64,7 @@ def inherit_docs(cls: type) -> type:
         """
     return cls
 
+
 """
 def inherit_docs(cls):
     for name in dir(cls):
@@ -83,7 +86,8 @@ def inherit_docs(cls):
                     # With that approach (using dir(cls) instead of var(cls))
                     # we also handle the mix-in class case.
                     wrapped = property(func.fget, func.fset, func.fdel, doc)
-                    clss = filter(lambda c: name in vars(c).keys() and not getattr(c, name).__doc__, cls.mro())
+                    clss = filter(lambda c: name in vars(c).keys()
+                                            and not getattr(c, name).__doc__, cls.mro())
                     setattr(clss[0], name, wrapped)
                 else:
                     try:

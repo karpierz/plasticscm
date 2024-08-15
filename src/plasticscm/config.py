@@ -1,6 +1,5 @@
-# Copyright (c) 2019-2020 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# Copyright (c) 2019 Adam Karpierz
+# SPDX-License-Identifier: Zlib
 
 from typing  import Optional, List
 from pathlib import Path
@@ -11,6 +10,7 @@ from public import public
 
 @public
 class PlasticConfigParser:
+    """Plastic configuration parser."""
 
     _DEFAULT_CONFIG_FILES = (
         Path(__file__).resolve().parent/"plasticscm.cfg",
@@ -20,6 +20,7 @@ class PlasticConfigParser:
     def __init__(self,
                  plastic_id: Optional[str] = None,
                  config_files: Optional[List[Path]] = None):
+        """Init"""
         self.plastic_id = plastic_id
         config_files = config_files or self._DEFAULT_CONFIG_FILES
         if all(not file.is_file() for file in config_files):
@@ -116,16 +117,16 @@ class PlasticConfigParser:
 
 @public
 class ConfigError(Exception):
-    """ """
+    """Configuration error."""
 
 @public
 class PlasticConfigMissingError(ConfigError):
-    """ """
+    """Configuration mising error."""
 
 @public
 class PlasticIDError(ConfigError):
-    """ """
+    """Plastic ID error."""
 
 @public
 class PlasticDataError(ConfigError):
-    """ """
+    """Plastic data error."""

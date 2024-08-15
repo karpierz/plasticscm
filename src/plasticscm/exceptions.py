@@ -1,6 +1,5 @@
-# Copyright (c) 2019-2020 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# Copyright (c) 2019 Adam Karpierz
+# SPDX-License-Identifier: Zlib
 
 import functools
 
@@ -9,8 +8,10 @@ from public import public
 
 @public
 class PlasticError(Exception):
+    """Plastic error."""
 
     def __init__(self, error_message="", response_code=None, response_body=None):
+        """Init"""
         if not isinstance(error_message, str):
             try:
                 # if we receive str/bytes we try to convert to unicode/str
@@ -28,6 +29,7 @@ class PlasticError(Exception):
     response_body = property(lambda self: self.__response_body)
 
     def __str__(self):
+        """Convert to string"""
         if self.__response_code is not None:
             return "{}: {}".format(self.__response_code, self.__error_message)
         else:

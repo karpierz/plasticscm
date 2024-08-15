@@ -4,14 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-from os import path
-from io import open
-from glob import glob
-
-top_dir = path.dirname(path.dirname(path.abspath(__file__)))
-with open(glob(path.join(top_dir, "src/*/__about__.py"))[0],
-          encoding="utf-8") as f:
-    class about: exec(f.read(), None)
+__import__("pkg_about").about_from_setup()
 
 def setup(app):
     pass
@@ -41,7 +34,7 @@ release = about.__version__
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-needs_sphinx = '2.0.1'
+needs_sphinx = '3.4.3'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -55,6 +48,11 @@ extensions = [
    #'sphinx.ext.coverage',
     'sphinx.ext.ifconfig',
     'sphinx.ext.napoleon',
+   #'sphinx_toolbox',
+    'sphinx_tabs.tabs',
+    'sphinx_copybutton',
+    'sphinxcontrib.spelling',
+    'nbsphinx',
 ]
 
 # Needed for e.g. linkcheck builder
@@ -105,10 +103,6 @@ apidoc_separate_modules = True
 apidoc_module_first = True
 apidoc_output_dir = 'api'
 
-# -- Options for linkcheck extension -----------------------------------------
-
-linkcheck_ignore = [r'http://localhost(:\d+)*/?', r'http://host:port']
-
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
@@ -118,3 +112,7 @@ linkcheck_ignore = [r'http://localhost(:\d+)*/?', r'http://host:port']
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
+
+# -- Options for linkcheck extension -----------------------------------------
+
+linkcheck_ignore = [r'http://localhost(:\d+)*/?', r'http://host:port']

@@ -1,10 +1,7 @@
-# Copyright (c) 2019-2020 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# Copyright (c) 2019 Adam Karpierz
+# SPDX-License-Identifier: Zlib
 
-_="""
-All operations will be performed in the machine hosting the API server.
-"""
+"""All operations will be performed in the machine hosting the API server."""
 
 from typing    import List, Tuple, Optional, Union
 from types     import ModuleType
@@ -14,13 +11,17 @@ import shutil
 
 from public import public
 
-from .model import *  # noqa
+from .model import (Repository, Workspace, ObjectType, Branch, Label, Changeset,
+                    RevisionHistoryItem, Change, OperationStatus, CheckinStatus,
+                    Item, Diff, AffectedPaths)
 from . import config
+
+_ = __doc__
 
 
 @public
 class Plastic:
-    """ """
+    """PlasticSCM client API."""
 
     @classmethod
     def from_config(cls,
@@ -40,14 +41,14 @@ class Plastic:
         """
         if config_files is not None:
             config_files = [Path(file) for file in config_files]
-        config = config.PlasticConfigParser(plastic_id=plastic_id,
-                                            config_files=config_files)
-        return cls(config.url,
-                   http_username=config.http_username,
-                   http_password=config.http_password,
-                   ssl_verify=config.ssl_verify,
-                   timeout=config.timeout,
-                   api_version=config.api_version)
+        config_parser = config.PlasticConfigParser(plastic_id=plastic_id,
+                                                   config_files=config_files)
+        return cls(config_parser.url,
+                   http_username=config_parser.http_username,
+                   http_password=config_parser.http_password,
+                   ssl_verify=config_parser.ssl_verify,
+                   timeout=config_parser.timeout,
+                   api_version=config_parser.api_version)
 
     def __new__(cls,
                 url: str = "http://localhost:9090", *,
@@ -106,8 +107,7 @@ class Plastic:
     # Repositories
 
     def get_repositories(self) -> Tuple[Repository]:
-        """Gets all available repositories of a server, along with their
-        information.
+        """Gets all available repositories of a server, along with their information.
 
         Returns:
             A list of the available repositories.
@@ -497,7 +497,8 @@ class Plastic:
         return self.__api.get_workspace_switch_status(wkspace_name)
 
     def switch_workspace(self, wkspace_name: str,
-                         object_type: ObjectType, object: Union[str, int]) -> OperationStatus:
+                         object_type: ObjectType, object: Union[str, int]) \
+            -> OperationStatus:  # noqa A002
         """Switch the workspace to a branch, changeset or label.
 
         Args:
@@ -605,8 +606,7 @@ class Plastic:
         return self.__api.get_item_in_label(repo_name, label_name, item_path)
 
     def get_item_revision(self, repo_name: str, revision_spec: str) -> Item:
-        """Load a single item's revision in the workspace and gets information
-        about it.
+        """Load a single item's revision in the workspace and gets information about it.
 
         Args:
             repo_name:     The name of the repository.
@@ -667,8 +667,7 @@ class Plastic:
 
     def diff_changesets(self, repo_name: str,
                         changeset_id: int, source_changeset_id: int) -> Tuple[Diff]:
-        """Gets the differences between the source changeset and the desired
-        changeset.
+        """Gets the differences between the source changeset and the desired changeset.
 
         Args:
             repo_name:    The name of the host repository of the changesets.
@@ -682,8 +681,7 @@ class Plastic:
         return self.__api.diff_changesets(repo_name, changeset_id, source_changeset_id)
 
     def diff_changeset(self, repo_name: str, changeset_id: int) -> Tuple[Diff]:
-        """Gets the differences between the parent changeset and the desired
-        changeset.
+        """Gets the differences between the parent changeset and the desired changeset.
 
         Args:
             repo_name:    The name of the host repository of the changeset.
@@ -696,8 +694,7 @@ class Plastic:
         return self.__api.diff_changeset(repo_name, changeset_id)
 
     def diff_branch(self, repo_name: str, branch_name: str) -> Tuple[Diff]:
-        """Gets the differences between the current branch and the desired
-        branch.
+        """Gets the differences between the current branch and the desired branch.
 
         Args:
             repo_name:   The name of the host repository of the branch.

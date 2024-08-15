@@ -1,8 +1,7 @@
-# Copyright (c) 2019-2020 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# Copyright (c) 2019 Adam Karpierz
+# SPDX-License-Identifier: Zlib
 
-from typing import List, Dict, Optional
+from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
 from pathlib import Path
@@ -10,20 +9,20 @@ from pathlib import Path
 from public import public
 
 from .. import model as base
-from ..util import *  # noqa
+from ..util import inherit_docs
 
 
 @public
 @inherit_docs
 class RepId(base.RepId):
 
-    def __new__(cls, *, id: int, module_id: int):
+    def __new__(cls, *, id: int, module_id: int):  # noqa A002
         self = super().__new__(cls)
         self.__id: int        = id
         self.__module_id: int = module_id
         return self
 
-    id        = property(lambda self: self.__id)
+    id        = property(lambda self: self.__id)  # noqa A003
     module_id = property(lambda self: self.__module_id)
 
 
@@ -103,7 +102,7 @@ class Branch(base.Branch):
 
     def __new__(cls, *,
                 name: str,
-                id: int,
+                id: int,  # noqa A002
                 parent_id: int,
                 last_changeset_id: int,
                 comment: Optional[str],
@@ -124,7 +123,7 @@ class Branch(base.Branch):
         return self
 
     name              = property(lambda self: self.__name)
-    id                = property(lambda self: self.__id)
+    id                = property(lambda self: self.__id)  # noqa A003
     parent_id         = property(lambda self: self.__parent_id)
     last_changeset_id = property(lambda self: self.__last_changeset_id)
     comment           = property(lambda self: self.__comment)
@@ -143,7 +142,7 @@ class Label(base.Label):
 
     def __new__(cls, *,
                 name: str,
-                id: int,
+                id: int,  # noqa A002
                 changeset_id: int,
                 comment: Optional[str],
                 creation_date: datetime,
@@ -162,7 +161,7 @@ class Label(base.Label):
         return self
 
     name          = property(lambda self: self.__name)
-    id            = property(lambda self: self.__id)
+    id            = property(lambda self: self.__id)  # noqa A003
     changeset_id  = property(lambda self: self.__changeset_id)
     comment       = property(lambda self: self.__comment)
     creation_date = property(lambda self: self.__creation_date)
@@ -179,7 +178,7 @@ class Changeset(base.Changeset):
     # private String server;
 
     def __new__(cls, *,
-                id: int,
+                id: int,  # noqa A002
                 parent_id: int,
                 comment: Optional[str],
                 creation_date: datetime,
@@ -198,7 +197,7 @@ class Changeset(base.Changeset):
         self.__repository: Repository  = repository
         return self
 
-    id            = property(lambda self: self.__id)
+    id            = property(lambda self: self.__id)  # noqa A003
     parent_id     = property(lambda self: self.__parent_id)
     comment       = property(lambda self: self.__comment)
     creation_date = property(lambda self: self.__creation_date)
@@ -232,12 +231,12 @@ class LocalInfo(base.LocalInfo):
 class RevisionInfo(base.RevisionInfo):
 
     def __new__(cls, *,
-                id: int,
+                id: int,  # noqa A002
                 parent_id: int,
                 item_id: int,
-                type: str,  # "text" # TODO change this to enum if possible
+                type: str,  # noqa A002 # "text" # TODO change this to enum if possible
                 size: int,
-                hash: str,  # str # "tLq1aWZ24MGupAHKZAgYFA=="
+                hash: str,  # noqa A002 # "tLq1aWZ24MGupAHKZAgYFA=="
                 branch_id: int,
                 changeset_id: int,
                 is_checked_out: bool,
@@ -259,12 +258,12 @@ class RevisionInfo(base.RevisionInfo):
         self.__owner: Optional[Owner]   = owner
         return self
 
-    id             = property(lambda self: self.__id)
+    id             = property(lambda self: self.__id)  # noqa A003
     parent_id      = property(lambda self: self.__parent_id)
     item_id        = property(lambda self: self.__item_id)
-    type           = property(lambda self: self.__type)
+    type           = property(lambda self: self.__type)  # noqa A003
     size           = property(lambda self: self.__size)
-    hash           = property(lambda self: self.__hash)
+    hash           = property(lambda self: self.__hash)  # noqa A003
     branch_id      = property(lambda self: self.__branch_id)
     changeset_id   = property(lambda self: self.__changeset_id)
     is_checked_out = property(lambda self: self.__is_checked_out)
@@ -278,7 +277,7 @@ class RevisionInfo(base.RevisionInfo):
 class RevisionHistoryItem(base.RevisionHistoryItem):
 
     def __new__(cls, *,
-                type: str,  # "text"
+                type: str,  # noqa A002 # "text"
                 revision_id: int,
                 revision_link: Optional[str],
                 changeset_id: int,
@@ -305,7 +304,7 @@ class RevisionHistoryItem(base.RevisionHistoryItem):
         self.__owner: Optional[Owner]        = owner
         return self
 
-    type           = property(lambda self: self.__type)
+    type           = property(lambda self: self.__type)  # noqa A003
     revision_id    = property(lambda self: self.__revision_id)
     revision_link  = property(lambda self: self.__revision_link)
     changeset_id   = property(lambda self: self.__changeset_id)
@@ -456,39 +455,39 @@ class Item(base.Item):
     # private String server;
 
     def __new__(cls, *,
-                type: Type,
+                type: Type,  # noqa A002
                 name: str,
                 path: str,
                 revision_id: Optional[int],
                 size: int,
                 is_under_xlink: Optional[bool],
                 content: Optional[str],
-                hash: Optional[str],
+                hash: Optional[str],  # noqa A002
                 items: Optional[List['Item']],
                 xlink_target: Optional[XLink],
                 repository: Optional[Repository]):
         self = super().__new__(cls)
-        self.__type: Type                       = type
+        self.__type: Type                       = type  # noqa A003
         self.__name: str                        = name
         self.__path: str                        = path
         self.__revision_id: Optional[int]       = revision_id
         self.__size: int                        = size
         self.__is_under_xlink: Optional[bool]   = is_under_xlink
         self.__content: Optional[str]           = content
-        self.__hash: Optional[str]              = hash
+        self.__hash: Optional[str]              = hash  # noqa A003
         self.__items: Optional[List[Item]]      = items
         self.__xlink_target: Optional[XLink]    = xlink_target
         self.__repository: Optional[Repository] = repository
         return self
 
-    type           = property(lambda self: self.__type)
+    type           = property(lambda self: self.__type)  # noqa A003
     name           = property(lambda self: self.__name)
     path           = property(lambda self: self.__path)
     revision_id    = property(lambda self: self.__revision_id)
     size           = property(lambda self: self.__size)
     is_under_xlink = property(lambda self: self.__is_under_xlink)
     content        = property(lambda self: self.__content)
-    hash           = property(lambda self: self.__hash)
+    hash           = property(lambda self: self.__hash)  # noqa A003
     items          = property(lambda self: self.__items)
     xlink_target   = property(lambda self: self.__xlink_target)
     repository     = property(lambda self: self.__repository)
@@ -513,7 +512,7 @@ class Merge(base.Merge):
                 merge_type: Type,
                 source_changeset: Changeset):
         self = super().__new__(cls)
-        self.__merge_type: Type            = merge_type
+        self.__merge_type: Merge.Type      = merge_type
         self.__source_changeset: Changeset = source_changeset
         return self
 
@@ -540,19 +539,19 @@ class Diff(base.Diff):
                 source_revision_id: Optional[int],
                 is_directory: bool,
                 size: Optional[int],  # really optional ???
-                hash: Optional[str],         # str # "u0gJQzQnjLNUUHRI1+QQLg=="
+                hash: Optional[str],  # noqa A003  # "u0gJQzQnjLNUUHRI1+QQLg=="
                 source_hash: Optional[str],  # str # "u0gJQzQnjLNUUHRI1+QQLg=="
                 is_under_xlink: bool,
                 xlink: Optional[XLink],
                 base_xlink: Optional[XLink],
                 merges: Optional[List[Merge]],
-                is_item_FS_protection_changed: bool,
-                item_FS_protection: str,  # TODO change this to enum if possible
+                is_item_fs_protection_changed: bool,
+                item_fs_protection: str,  # TODO change this to enum if possible
                 repository: Repository,
                 modified_time: Optional[datetime],
                 created_by: Optional[Owner]):
         self = super().__new__(cls)
-        self.__status: Status                      = status
+        self.__status: Diff.Status                 = status
         self.__path: str                           = path
         self.__source_path: Optional[str]          = source_path
         self.__revision_id: Optional[int]          = revision_id
@@ -565,8 +564,8 @@ class Diff(base.Diff):
         self.__xlink: Optional[XLink]              = xlink
         self.__base_xlink: Optional[XLink]         = base_xlink
         self.__merges: Optional[List[Merge]]       = merges
-        self.__is_item_FS_protection_changed: bool = is_item_FS_protection_changed
-        self.__item_FS_protection: str             = item_FS_protection
+        self.__is_item_fs_protection_changed: bool = is_item_fs_protection_changed
+        self.__item_fs_protection: str             = item_fs_protection
         self.__repository: Repository              = repository
         self.__modified_time: Optional[datetime]   = modified_time
         self.__created_by: Optional[Owner]         = created_by
@@ -579,15 +578,15 @@ class Diff(base.Diff):
     source_revision_id = property(lambda self: self.__source_revision_id)
     is_directory       = property(lambda self: self.__is_directory)
     size               = property(lambda self: self.__size)
-    hash               = property(lambda self: self.__hash)
+    hash               = property(lambda self: self.__hash)  # noqa A003
     source_hash        = property(lambda self: self.__source_hash)
     is_under_xlink     = property(lambda self: self.__is_under_xlink)
     xlink              = property(lambda self: self.__xlink)
     base_xlink         = property(lambda self: self.__base_xlink)
     merges             = property(lambda self: self.__merges)
-    is_item_FS_protection_changed = property(lambda self:
-                                    self.__is_item_FS_protection_changed)
-    item_FS_protection = property(lambda self: self.__item_FS_protection)
+    is_item_fs_protection_changed = property(lambda self:
+                                    self.__is_item_fs_protection_changed)
+    item_fs_protection = property(lambda self: self.__item_fs_protection)
     repository         = property(lambda self: self.__repository)
     modified_time      = property(lambda self: self.__modified_time)
     created_by         = property(lambda self: self.__created_by)

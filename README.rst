@@ -10,6 +10,8 @@ TBD...
 
 `PyPI record`_.
 
+`Documentation`_.
+
 Requirements
 ============
 
@@ -22,10 +24,9 @@ Installation
 
 Prerequisites:
 
-+ Python 3.6 or higher
++ Python 3.8 or higher
 
   * https://www.python.org/
-  * 3.7 is a primary test environment.
 
 + pip and setuptools
 
@@ -47,7 +48,7 @@ Prerequisites:
 
     python -m pip install --upgrade tox
 
-Visit `development page`_.
+Visit `Development page`_.
 
 Installation from sources:
 
@@ -72,9 +73,9 @@ or on development mode:
 License
 =======
 
-  | Copyright (c) 2019-2020 Adam Karpierz
+  | Copyright (c) 2019-2024 Adam Karpierz
   | Licensed under the zlib/libpng License
-  | https://opensource.org/licenses/Zlib
+  | https://opensource.org/license/zlib
   | Please refer to the accompanying LICENSE file.
 
 Authors
@@ -85,5 +86,6 @@ Authors
 .. |package| replace:: plasticscm
 .. |package_bold| replace:: **plasticscm**
 .. |respository| replace:: https://github.com/karpierz/plasticscm.git
-.. _development page: https://github.com/karpierz/plasticscm/
+.. _Development page: https://github.com/karpierz/plasticscm/
 .. _PyPI record: https://pypi.org/project/plasticscm/
+.. _Documentation: https://plasticscm.readthedocs.io/
