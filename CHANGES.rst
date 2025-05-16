@@ -1,6 +1,18 @@
 Changelog
 =========
 
+0.5.0a1 (2025-05-15)
+--------------------
+- The distribution is now created using 'build' instead of 'setuptools'.
+- Copyright year update.
+- Add support for Python 3.14
+- Drop support for Python 3.9 (due to compatibility issues).
+- Add support for PyPy 3.11
+- Drop support for PyPy 3.9
+- Update readthedocs's python to version 3.13
+- Update tox's base_python to version 3.13
+- Setup (dependencies) update.
+
 0.4.0a1 (2024-09-30)
 --------------------
 - Drop support for Python 3.8

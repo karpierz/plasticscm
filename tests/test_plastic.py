@@ -663,6 +663,68 @@ class TestPlastic(unittest.TestCase):
 
             {
                 "method": "create_label",
+                "args": ("default", "BL002", 99),
+                "kwargs": dict(),
+                "rtype": pl.model.Label,
+                "urlmatch": urlmatch(scheme=scheme, netloc=netloc, method="post",
+                                     path=r"^/api/v1/repos/\w+/labels$"),
+                "expected": {
+                    "status_code": 200, # OK
+                    "content": {
+                        "name": "BL002",
+                        "id": 1401,
+                        "changeset": 99,
+                        "comment": "",
+                        "creationDate": "2015-07-01T10:19:14",
+                        "branch": {
+                            "name": "/main",
+                            "id": 3,
+                            "parentId": -1,
+                            "lastChangeset": 101,
+                            "comment": "main branch",
+                            "creationDate": "2015-04-09T07:17:00",
+                            "guid": "5fc2d7c8-05e1-4987-9dd9-74eaec7c27eb",
+                            "owner": {
+                                "name": "all",
+                                "isGroup": False
+                            },
+                            "repository": {
+                                "name": "default",
+                                "repId": {
+                                    "id": 1,
+                                    "moduleId": 0
+                                },
+                                "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
+                                "owner": {
+                                    "name": "all",
+                                    "isGroup": False
+                                },
+                                "server": "localhost:8084"
+                            }
+                        },
+                        "owner": {
+                            "name": "tester",
+                            "isGroup": False
+                        },
+                        "repository": {
+                            "name": "default",
+                            "repId": {
+                                "id": 1,
+                                "moduleId": 0
+                            },
+                            "guid": "c43e1cf9-50b0-4e0d-aca5-c1814d016425",
+                            "owner": {
+                                "name": "all",
+                                "isGroup": False
+                            },
+                            "server": "localhost:8084"
+                        }
+                    }
+                }
+            },
+
+            {
+                "method": "create_label",
                 "args": ("default", "BL001", 99),
                 "kwargs": dict(comment="Stable baseline - 1"),
                 "rtype": pl.model.Label,
@@ -2929,6 +2991,18 @@ class TestPlastic(unittest.TestCase):
             #print(r.status_code)
             #print(r.content) # 'Oh hai'
             #print(r.json())  # 'Oh hai'
+
+    # Version
+
+    def test_api_version(self):
+        self.assertEqual(self.pl.api_version, "1")
+
+    # Utils
+
+    # def test_get_cm_location(self):
+    #     self.assertIsInstance(self.pl.get_cm_location(), Path)
+    #     # with self.assertRaises(FileNotFoundError):
+    #     #     ret = self.pl.get_cm_location()
 
     # Repositories
 
