@@ -4,9 +4,13 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-__import__("pkg_about").about_from_setup()
+import os
 
-def setup(app):
+from sphinx import application
+
+about = __import__("pkg_about").about_from_setup(1)
+
+def setup(app: application.Sphinx) -> None:
     pass
 
 # -- Path setup --------------------------------------------------------------
@@ -116,4 +120,8 @@ todo_include_todos = False
 
 # -- Options for linkcheck extension -----------------------------------------
 
-linkcheck_ignore = [r'http://localhost(:\d+)*/?', r'http://host:port']
+linkcheck_ignore = []
+linkcheck_ignore += [r'http://localhost(:\d+)*/?', r'http://host:port']
+doc_url = about.__urls__.get("Documentation")
+if doc_url is not None and os.getenv("PKG_INITIAL_BUILD") == "1":
+    linkcheck_ignore += [rf"{doc_url.rstrip('/')}(/.*)?"]

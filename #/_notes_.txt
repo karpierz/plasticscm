@@ -1,0 +1,151 @@
+# ???
+
+class GitlabAuthenticationError(PlasticError):
+    """ """
+
+class GitlabParsingError(PlasticError):
+    """ """
+
+class GitlabConnectionError(PlasticError):
+    """ """
+
+class GitlabOperationError(PlasticError):
+    """ """
+
+class GitlabListError(GitlabOperationError):
+    """ """
+
+class GitlabGetError(GitlabOperationError):
+    """ """
+
+class GitlabCreateError(GitlabOperationError):
+    """ """
+
+class GitlabUpdateError(GitlabOperationError):
+    """ """
+
+class GitlabDeleteError(GitlabOperationError):
+    """ """
+
+class GitlabSetError(GitlabOperationError):
+    """ """
+
+class GitlabProtectError(GitlabOperationError):
+    """ """
+
+class GitlabTransferProjectError(GitlabOperationError):
+    """ """
+
+class GitlabProjectDeployKeyError(GitlabOperationError):
+    """ """
+
+class GitlabCancelError(GitlabOperationError):
+    """ """
+
+class GitlabPipelineCancelError(GitlabCancelError):
+    """ """
+
+class GitlabRetryError(GitlabOperationError):
+    """ """
+
+class GitlabBuildCancelError(GitlabCancelError):
+    """ """
+
+class GitlabBuildRetryError(GitlabRetryError):
+    """ """
+
+class GitlabBuildPlayError(GitlabRetryError):
+    """ """
+
+class GitlabBuildEraseError(GitlabRetryError):
+    """ """
+
+class GitlabJobCancelError(GitlabCancelError):
+    """ """
+
+class GitlabJobRetryError(GitlabRetryError):
+    """ """
+
+class GitlabJobPlayError(GitlabRetryError):
+    """ """
+
+class GitlabJobEraseError(GitlabRetryError):
+    """ """
+
+class GitlabPipelineRetryError(GitlabRetryError):
+    """ """
+
+class GitlabBlockError(GitlabOperationError):
+    """ """
+
+class GitlabUnblockError(GitlabOperationError):
+    """ """
+
+class GitlabDeactivateError(GitlabOperationError):
+    """ """
+
+class GitlabActivateError(GitlabOperationError):
+    """ """
+
+class GitlabSubscribeError(GitlabOperationError):
+    """ """
+
+class GitlabUnsubscribeError(GitlabOperationError):
+    """ """
+
+class GitlabMRForbiddenError(GitlabOperationError):
+    """ """
+
+class GitlabMRApprovalError(GitlabOperationError):
+    """ """
+
+class GitlabMRRebaseError(GitlabOperationError):
+    """ """
+
+class GitlabMRClosedError(GitlabOperationError):
+    """ """
+
+class GitlabMROnBuildSuccessError(GitlabOperationError):
+    """ """
+
+class GitlabTodoError(GitlabOperationError):
+    """ """
+
+class GitlabTimeTrackingError(GitlabOperationError):
+    """ """
+
+class GitlabUploadError(GitlabOperationError):
+    """ """
+
+class GitlabAttachFileError(GitlabOperationError):
+    """ """
+
+class GitlabCherryPickError(GitlabOperationError):
+    """ """
+
+class GitlabHousekeepingError(GitlabOperationError):
+    """ """
+
+class GitlabOwnershipError(GitlabOperationError):
+    """ """
+
+class GitlabSearchError(GitlabOperationError):
+    """ """
+
+class GitlabStopError(GitlabOperationError):
+    """ """
+
+class GitlabMarkdownError(GitlabOperationError):
+    """ """
+
+class GitlabVerifyError(GitlabOperationError):
+    """ """
+
+class GitlabRenderError(GitlabOperationError):
+    """ """
+
+class GitlabRepairError(GitlabOperationError):
+    """ """
+
+class GitlabLicenseError(GitlabOperationError):
+    """ """

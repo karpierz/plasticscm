@@ -1,14 +1,16 @@
 # Copyright (c) 2019 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
-from typing  import Optional, List
+from __future__ import annotations
+
+from collections.abc import Sequence
 from pathlib import Path
 import configparser
 
-from public import public
+__all__ = ('PlasticConfigParser', 'ConfigError', 'PlasticConfigMissingError',
+           'PlasticIDError', 'PlasticDataError')
 
 
-@public
 class PlasticConfigParser:
     """Plastic configuration parser."""
 
@@ -18,12 +20,14 @@ class PlasticConfigParser:
     )
 
     def __init__(self,
-                 plastic_id: Optional[str] = None,
-                 config_files: Optional[List[Path]] = None):
-        """Init"""
+                 plastic_id: str | None = None,
+                 config_files: Sequence[Path | str] | None = None) -> None:
+        """Initializer"""
         self.plastic_id = plastic_id
-        config_files = config_files or self._DEFAULT_CONFIG_FILES
-        if all(not file.is_file() for file in config_files):
+        paths = ([Path(file) for file in config_files]
+                 if config_files is not None else
+                 self._DEFAULT_CONFIG_FILES)
+        if all(not file.is_file() for file in paths):
             raise PlasticConfigMissingError(
                 "Config file not found.\n"
                 "Please create one in one of the following locations: {}\n"
@@ -31,7 +35,7 @@ class PlasticConfigParser:
                 ", ".join(str(file) for file in self._DEFAULT_CONFIG_FILES)))
 
         self._config = configparser.ConfigParser()
-        self._config.read((str(file) for file in config_files), encoding="utf-8")
+        self._config.read((str(file) for file in paths), encoding="utf-8")
 
         if self.plastic_id is None:
             try:
@@ -56,7 +60,7 @@ class PlasticConfigParser:
         except Exception:
             pass
 
-        self.ssl_verify = True
+        self.ssl_verify: bool | str | None = True
         for section in sections:
             try:
                 self.ssl_verify = self._config.getboolean(section, "ssl_verify")
@@ -103,7 +107,7 @@ class PlasticConfigParser:
             except Exception:
                 pass
         if self.api_version not in ("1",):
-            raise PlasticDataError("Unsupported API version: {}".format(self.api_version))
+            raise PlasticDataError(f"Unsupported API version: {self.api_version}")
 
         self.per_page = None
         for section in sections:
@@ -112,21 +116,20 @@ class PlasticConfigParser:
             except Exception:
                 pass
         if self.per_page is not None and not 0 <= self.per_page <= 100:
-            raise PlasticDataError("Unsupported per_page number: {}".format(self.per_page))
+            raise PlasticDataError(f"Unsupported per_page number: {self.per_page}")
 
 
-@public
 class ConfigError(Exception):
     """Configuration error."""
 
-@public
+
 class PlasticConfigMissingError(ConfigError):
     """Configuration mising error."""
 
-@public
+
 class PlasticIDError(ConfigError):
     """Plastic ID error."""
 
-@public
+
 class PlasticDataError(ConfigError):
     """Plastic data error."""

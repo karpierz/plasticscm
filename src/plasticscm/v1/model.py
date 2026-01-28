@@ -1,61 +1,78 @@
 # Copyright (c) 2019 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
-from typing import List, Optional
-from datetime import datetime
-from uuid import UUID
-from pathlib import Path
+from __future__ import annotations
 
-from public import public
+from typing_extensions import Self
+from datetime import datetime
+from pathlib import Path
+from uuid import UUID
 
 from .. import model as base
 from ..util import inherit_docs
 
+__all__ = ('RepId', 'Owner', 'Repository', 'Workspace', 'ObjectType',
+           'Branch', 'Label', 'Changeset', 'LocalInfo', 'RevisionInfo',
+           'RevisionHistoryItem', 'Change', 'OperationStatus', 'CheckinStatus',
+           'XLink', 'Item', 'Merge', 'Diff', 'AffectedPaths')
 
-@public
+
 @inherit_docs
 class RepId(base.RepId):
 
-    def __new__(cls, *, id: int, module_id: int):  # noqa A002
+    __id: int
+    __module_id: int
+
+    def __new__(cls, *, id: int, module_id: int) -> Self:  # noqa A002
+        """Constructor"""
         self = super().__new__(cls)
-        self.__id: int        = id
-        self.__module_id: int = module_id
+        self.__id        = id
+        self.__module_id = module_id
         return self
 
     id        = property(lambda self: self.__id)  # noqa A003
     module_id = property(lambda self: self.__module_id)
 
 
-@public
 @inherit_docs
 class Owner(base.Owner):
 
-    def __new__(cls, *, name: str, is_group: bool = False):
+    __name: str
+    __is_group: bool
+
+    def __new__(cls, *, name: str, is_group: bool = False) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__name: str      = name
-        self.__is_group: bool = is_group
+        self.__name     = name
+        self.__is_group = is_group
         return self
 
     name     = property(lambda self: self.__name)
     is_group = property(lambda self: self.__is_group)
 
 
-@public
 @inherit_docs
 class Repository(base.Repository):
+
+    __name: str
+    __server: str
+    __owner: Owner | None
+    __rep_id: RepId | None
+    __guid: UUID | None
 
     def __new__(cls, *,
                 name: str,
                 server: str,
-                owner: Optional[Owner],
-                rep_id: Optional[RepId],
-                guid: Optional[UUID]):
+                owner: Owner | None,
+                rep_id: RepId | None,
+                guid: UUID | None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__name: str               = name
-        self.__server: str             = server
-        self.__owner: Optional[Owner]  = owner
-        self.__rep_id: Optional[RepId] = rep_id
-        self.__guid: Optional[UUID]    = guid
+        self.__name   = name
+        self.__server = server
+        self.__owner  = owner
+        self.__rep_id = rep_id
+        self.__guid   = guid
         return self
 
     name      = property(lambda self: self.__name)
@@ -66,20 +83,25 @@ class Repository(base.Repository):
     guid      = property(lambda self: self.__guid)
 
 
-@public
 @inherit_docs
 class Workspace(base.Workspace):
+
+    __name: str
+    __path: Path
+    __machine_name: str
+    __guid: UUID
 
     def __new__(cls, *,
                 name: str,
                 path: Path,
                 machine_name: str,
-                guid: UUID):
+                guid: UUID) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__name: str         = name
-        self.__path: Path        = path
-        self.__machine_name: str = machine_name
-        self.__guid: UUID        = guid
+        self.__name         = name
+        self.__path         = path
+        self.__machine_name = machine_name
+        self.__guid         = guid
         return self
 
     name         = property(lambda self: self.__name)
@@ -88,7 +110,6 @@ class Workspace(base.Workspace):
     guid         = property(lambda self: self.__guid)
 
 
-@public
 @inherit_docs
 class ObjectType(base.ObjectType):
     CHANGESET = "changeset"
@@ -96,30 +117,40 @@ class ObjectType(base.ObjectType):
     BRANCH    = "branch"
 
 
-@public
 @inherit_docs
 class Branch(base.Branch):
+
+    __name: str
+    __id: int
+    __parent_id: int
+    __last_changeset_id: int
+    __comment: str | None
+    __creation_date: datetime
+    __guid: UUID
+    __owner: Owner | None
+    __repository: Repository
 
     def __new__(cls, *,
                 name: str,
                 id: int,  # noqa A002
                 parent_id: int,
                 last_changeset_id: int,
-                comment: Optional[str],
+                comment: str | None,
                 creation_date: datetime,
                 guid: UUID,
-                owner: Optional[Owner],
-                repository: Repository):
+                owner: Owner | None,
+                repository: Repository) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__name: str               = name
-        self.__id: int                 = id
-        self.__parent_id: int          = parent_id
-        self.__last_changeset_id: int  = last_changeset_id
-        self.__comment: Optional[str]  = comment
-        self.__creation_date: datetime = creation_date
-        self.__guid: UUID              = guid
-        self.__owner: Optional[Owner]  = owner
-        self.__repository: Repository  = repository
+        self.__name              = name
+        self.__id                = id
+        self.__parent_id         = parent_id
+        self.__last_changeset_id = last_changeset_id
+        self.__comment           = comment
+        self.__creation_date     = creation_date
+        self.__guid              = guid
+        self.__owner             = owner
+        self.__repository        = repository
         return self
 
     name              = property(lambda self: self.__name)
@@ -133,10 +164,17 @@ class Branch(base.Branch):
     repository        = property(lambda self: self.__repository)
 
 
-@public
 @inherit_docs
 class Label(base.Label):
 
+    __name: str
+    __id: int
+    __changeset_id: int
+    __comment: str | None
+    __creation_date: datetime
+    __branch: Branch
+    __owner: Owner | None
+    __repository: Repository
     #
     # private String server;
 
@@ -144,20 +182,21 @@ class Label(base.Label):
                 name: str,
                 id: int,  # noqa A002
                 changeset_id: int,
-                comment: Optional[str],
+                comment: str | None,
                 creation_date: datetime,
                 branch: Branch,
-                owner: Optional[Owner],
-                repository: Repository):
+                owner: Owner | None,
+                repository: Repository) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__name: str               = name
-        self.__id: int                 = id
-        self.__changeset_id: int       = changeset_id
-        self.__comment: Optional[str]  = comment
-        self.__creation_date: datetime = creation_date
-        self.__branch: Branch          = branch
-        self.__owner: Optional[Owner]  = owner
-        self.__repository: Repository  = repository
+        self.__name          = name
+        self.__id            = id
+        self.__changeset_id  = changeset_id
+        self.__comment       = comment
+        self.__creation_date = creation_date
+        self.__branch        = branch
+        self.__owner         = owner
+        self.__repository    = repository
         return self
 
     name          = property(lambda self: self.__name)
@@ -170,31 +209,39 @@ class Label(base.Label):
     repository    = property(lambda self: self.__repository)
 
 
-@public
 @inherit_docs
 class Changeset(base.Changeset):
 
+    __id: int
+    __parent_id: int
+    __comment: str | None
+    __creation_date: datetime
+    __guid: UUID
+    __branch: Branch
+    __owner: Owner | None
+    __repository: Repository
     #
     # private String server;
 
     def __new__(cls, *,
                 id: int,  # noqa A002
                 parent_id: int,
-                comment: Optional[str],
+                comment: str | None,
                 creation_date: datetime,
                 guid: UUID,
                 branch: Branch,
-                owner: Optional[Owner],
-                repository: Repository):
+                owner: Owner | None,
+                repository: Repository) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__id: int                 = id
-        self.__parent_id: int          = parent_id
-        self.__comment: Optional[str]  = comment
-        self.__creation_date: datetime = creation_date
-        self.__guid: UUID              = guid
-        self.__branch: Branch          = branch
-        self.__owner: Optional[Owner]  = owner
-        self.__repository: Repository  = repository
+        self.__id            = id
+        self.__parent_id     = parent_id
+        self.__comment       = comment
+        self.__creation_date = creation_date
+        self.__guid          = guid
+        self.__branch        = branch
+        self.__owner         = owner
+        self.__repository    = repository
         return self
 
     id            = property(lambda self: self.__id)  # noqa A003
@@ -207,18 +254,22 @@ class Changeset(base.Changeset):
     repository    = property(lambda self: self.__repository)
 
 
-@public
 @inherit_docs
 class LocalInfo(base.LocalInfo):
+
+    __modified_time: datetime
+    __size: int
+    __is_missing: bool
 
     def __new__(cls, *,
                 modified_time: datetime,
                 size: int,
-                is_missing: bool):
+                is_missing: bool) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__modified_time: datetime = modified_time
-        self.__size: int               = size
-        self.__is_missing: bool        = is_missing
+        self.__modified_time = modified_time
+        self.__size          = size
+        self.__is_missing    = is_missing
         return self
 
     modified_time = property(lambda self: self.__modified_time)
@@ -226,9 +277,21 @@ class LocalInfo(base.LocalInfo):
     is_missing    = property(lambda self: self.__is_missing)
 
 
-@public
 @inherit_docs
 class RevisionInfo(base.RevisionInfo):
+
+    __id: int
+    __parent_id: int
+    __item_id: int
+    __type: str
+    __size: int
+    __hash: str
+    __branch_id: int
+    __changeset_id: int
+    __is_checked_out: bool
+    __creation_date: datetime
+    __rep_id: RepId | None
+    __owner: Owner | None
 
     def __new__(cls, *,
                 id: int,  # noqa A002
@@ -241,21 +304,22 @@ class RevisionInfo(base.RevisionInfo):
                 changeset_id: int,
                 is_checked_out: bool,
                 creation_date: datetime,
-                rep_id: Optional[RepId],
-                owner: Optional[Owner]):
+                rep_id: RepId | None,
+                owner: Owner | None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__id: int                  = id
-        self.__parent_id: int           = parent_id
-        self.__item_id: int             = item_id
-        self.__type                     = type
-        self.__size: int                = size
-        self.__hash                     = hash
-        self.__branch_id: int           = branch_id
-        self.__changeset_id: int        = changeset_id
-        self.__is_checked_out: bool     = is_checked_out
-        self.__creation_date: datetime  = creation_date
-        self.__rep_id: Optional[RepId]  = rep_id
-        self.__owner: Optional[Owner]   = owner
+        self.__id             = id
+        self.__parent_id      = parent_id
+        self.__item_id        = item_id
+        self.__type           = type
+        self.__size           = size
+        self.__hash           = hash
+        self.__branch_id      = branch_id
+        self.__changeset_id   = changeset_id
+        self.__is_checked_out = is_checked_out
+        self.__creation_date  = creation_date
+        self.__rep_id         = rep_id
+        self.__owner          = owner
         return self
 
     id             = property(lambda self: self.__id)  # noqa A003
@@ -272,36 +336,49 @@ class RevisionInfo(base.RevisionInfo):
     owner          = property(lambda self: self.__owner)
 
 
-@public
 @inherit_docs
 class RevisionHistoryItem(base.RevisionHistoryItem):
+
+    __type: str
+    __revision_id: int
+    __revision_link: str | None
+    __changeset_id: int
+    __changeset_link: str | None
+    __branch_name: str
+    __branch_link: str | None
+    __repo_name: str
+    __repo_link: str | None
+    __comment: str | None
+    __creation_date: datetime
+    __owner: Owner | None
 
     def __new__(cls, *,
                 type: str,  # noqa A002 # "text"
                 revision_id: int,
-                revision_link: Optional[str],
+                revision_link: str | None,
                 changeset_id: int,
-                changeset_link: Optional[str],
+                changeset_link: str | None,
                 branch_name: str,
-                branch_link: Optional[str],
+                branch_link: str | None,
                 repo_name: str,
-                repo_link: Optional[str],
-                comment: Optional[str],
+                repo_link: str | None,
+                comment: str | None,
                 creation_date: datetime,
-                owner: Optional[Owner]):
+                owner: Owner | None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__type                          = type
-        self.__revision_id: int              = revision_id
-        self.__revision_link: Optional[str]  = revision_link
-        self.__changeset_id: int             = changeset_id
-        self.__changeset_link: Optional[str] = changeset_link
-        self.__branch_name: str              = branch_name
-        self.__branch_link: Optional[str]    = branch_link
-        self.__repo_name: str                = repo_name
-        self.__repo_link: Optional[str]      = repo_link
-        self.__comment: Optional[str]        = comment
-        self.__creation_date: datetime       = creation_date
-        self.__owner: Optional[Owner]        = owner
+        self.__type           = type
+        self.__revision_id    = revision_id
+        self.__revision_link  = revision_link
+        self.__changeset_id   = changeset_id
+        self.__changeset_link = changeset_link
+        self.__branch_name    = branch_name
+        self.__branch_link    = branch_link
+        self.__repo_name      = repo_name
+        self.__repo_link      = repo_link
+        self.__comment        = comment
+        self.__creation_date  = creation_date
+        self.__owner          = owner
         return self
 
     type           = property(lambda self: self.__type)  # noqa A003
@@ -318,12 +395,11 @@ class RevisionHistoryItem(base.RevisionHistoryItem):
     owner          = property(lambda self: self.__owner)
 
 
-@public
 @inherit_docs
 class Change(base.Change):
 
     @inherit_docs
-    class Type(base.Change.Type):
+    class Type(base.Change.Type):  # noqa D106
         ADDED              = "added"
         CHECKED_OUT        = "checkout"
         CHANGED            = "changed"
@@ -339,24 +415,34 @@ class Change(base.Change):
         CONTROLLED_CHANGED = "controlledchanged"
         ALL                = "all"
 
+    __changes: list[str]
+    __path: Path
+    __old_path: Path | None
+    __server_path: str
+    __old_server_path: str | None
+    __is_xlink: bool
+    __local_info: LocalInfo
+    __revision_info: RevisionInfo
+
     def __new__(cls, *,
-                changes: List[str],
+                changes: list[str],
                 path: Path,
-                old_path: Optional[Path],
+                old_path: Path | None,
                 server_path: str,
-                old_server_path: Optional[str],
+                old_server_path: str | None,
                 is_xlink: bool,
                 local_info: LocalInfo,
-                revision_info: RevisionInfo):
+                revision_info: RevisionInfo) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__changes: List[str]             = changes  # Pending of revision
-        self.__path: Path                     = path
-        self.__old_path: Optional[Path]       = old_path
-        self.__server_path: str               = server_path
-        self.__old_server_path: Optional[str] = old_server_path
-        self.__is_xlink: bool                 = is_xlink
-        self.__local_info: LocalInfo          = local_info
-        self.__revision_info: RevisionInfo    = revision_info
+        self.__changes         = changes  # Pending of revision
+        self.__path            = path
+        self.__old_path        = old_path
+        self.__server_path     = server_path
+        self.__old_server_path = old_server_path
+        self.__is_xlink        = is_xlink
+        self.__local_info      = local_info
+        self.__revision_info   = revision_info
         return self
 
     changes         = property(lambda self: self.__changes)
@@ -369,24 +455,31 @@ class Change(base.Change):
     revision_info   = property(lambda self: self.__revision_info)
 
 
-@public
 @inherit_docs
 class OperationStatus(base.OperationStatus):
 
+    __status: str | None
+    __message: str | None
+    __total_files: int | None
+    __total_bytes: int | None
+    __updated_files: int | None
+    __updated_bytes: int | None
+
     def __new__(cls, *,
-                status:  Optional[str] = None,
-                message: Optional[str] = None,
-                total_files: Optional[int] = None,
-                total_bytes: Optional[int] = None,
-                updated_files: Optional[int] = None,
-                updated_bytes: Optional[int] = None):
+                status:  str | None = None,
+                message: str | None = None,
+                total_files: int | None = None,
+                total_bytes: int | None = None,
+                updated_files: int | None = None,
+                updated_bytes: int | None = None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__status: Optional[str]  = status
-        self.__message: Optional[str] = message
-        self.__total_files: Optional[int] = total_files
-        self.__total_bytes: Optional[int] = total_bytes
-        self.__updated_files: Optional[int] = updated_files
-        self.__updated_bytes: Optional[int] = updated_bytes
+        self.__status        = status
+        self.__message       = message
+        self.__total_files   = total_files
+        self.__total_bytes   = total_bytes
+        self.__updated_files = updated_files
+        self.__updated_bytes = updated_bytes
         return self
 
     status        = property(lambda self: self.__status)
@@ -397,20 +490,25 @@ class OperationStatus(base.OperationStatus):
     updated_bytes = property(lambda self: self.__updated_bytes or 0)
 
 
-@public
 @inherit_docs
 class CheckinStatus(base.CheckinStatus):
 
+    __status: str | None
+    __message: str | None
+    __total: int | None
+    __transferred: int | None
+
     def __new__(cls, *,
-                status: Optional[str] = None,
-                message: Optional[str] = None,
-                total_size: Optional[int] = None,
-                transferred_size: Optional[int] = None):
+                status: str | None = None,
+                message: str | None = None,
+                total_size: int | None = None,
+                transferred_size: int | None = None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__status: Optional[str]      = status
-        self.__message: Optional[str]     = message
-        self.__total: Optional[int]       = total_size
-        self.__transferred: Optional[int] = transferred_size
+        self.__status      = status
+        self.__message     = message
+        self.__total       = total_size
+        self.__transferred = transferred_size
         return self
 
     status           = property(lambda self: self.__status)
@@ -419,20 +517,25 @@ class CheckinStatus(base.CheckinStatus):
     transferred_size = property(lambda self: self.__transferred or 0)
 
 
-@public
 @inherit_docs
 class XLink(base.XLink):
+
+    __changeset_id: int
+    __changeset_guid: UUID
+    __repo_name: str
+    __server: str
 
     def __new__(cls, *,
                 changeset_id: int,
                 changeset_guid: UUID,
                 repo_name: str,
-                server: str):
+                server: str) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__changeset_id: int    = changeset_id
-        self.__changeset_guid: UUID = changeset_guid
-        self.__repo_name: str       = repo_name
-        self.__server: str          = server
+        self.__changeset_id   = changeset_id
+        self.__changeset_guid = changeset_guid
+        self.__repo_name      = repo_name
+        self.__server         = server
         return self
 
     changeset_id   = property(lambda self: self.__changeset_id)
@@ -441,16 +544,26 @@ class XLink(base.XLink):
     server         = property(lambda self: self.__server)
 
 
-@public
 @inherit_docs
 class Item(base.Item):
 
     @inherit_docs
-    class Type(base.Item.Type):
+    class Type(base.Item.Type):  # noqa D106
         FILE      = "file"
         DIRECTORY = "directory"
         XLINK     = "xlink"
 
+    __type: Type
+    __name: str
+    __path: str
+    __revision_id: int | None
+    __size: int
+    __is_under_xlink: bool | None
+    __content: str | None
+    __hash: str | None
+    __items: list[Item] | None
+    __xlink_target: XLink | None
+    __repository: Repository | None
     #
     # private String server;
 
@@ -458,26 +571,27 @@ class Item(base.Item):
                 type: Type,  # noqa A002
                 name: str,
                 path: str,
-                revision_id: Optional[int],
+                revision_id: int | None,
                 size: int,
-                is_under_xlink: Optional[bool],
-                content: Optional[str],
-                hash: Optional[str],  # noqa A002
-                items: Optional[List['Item']],
-                xlink_target: Optional[XLink],
-                repository: Optional[Repository]):
+                is_under_xlink: bool | None,
+                content: str | None,
+                hash: str | None,  # noqa A002
+                items: list['Item'] | None,
+                xlink_target: XLink | None,
+                repository: Repository | None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__type: Type                       = type  # noqa A003
-        self.__name: str                        = name
-        self.__path: str                        = path
-        self.__revision_id: Optional[int]       = revision_id
-        self.__size: int                        = size
-        self.__is_under_xlink: Optional[bool]   = is_under_xlink
-        self.__content: Optional[str]           = content
-        self.__hash: Optional[str]              = hash  # noqa A003
-        self.__items: Optional[List[Item]]      = items
-        self.__xlink_target: Optional[XLink]    = xlink_target
-        self.__repository: Optional[Repository] = repository
+        self.__type           = type  # noqa A003
+        self.__name           = name
+        self.__path           = path
+        self.__revision_id    = revision_id
+        self.__size           = size
+        self.__is_under_xlink = is_under_xlink
+        self.__content        = content
+        self.__hash           = hash  # noqa A003
+        self.__items          = items
+        self.__xlink_target   = xlink_target
+        self.__repository     = repository
         return self
 
     type           = property(lambda self: self.__type)  # noqa A003
@@ -493,12 +607,11 @@ class Item(base.Item):
     repository     = property(lambda self: self.__repository)
 
 
-@public
 @inherit_docs
 class Merge(base.Merge):
 
     @inherit_docs
-    class Type(base.Merge.Type):
+    class Type(base.Merge.Type):  # noqa D106
         NONE     = "None"
         COPIED   = "Copied"
         REPLACED = "Replaced"
@@ -508,67 +621,90 @@ class Merge(base.Merge):
         ADDED    = "Added"
         ALL      = "All"
 
+    __merge_type: Merge.Type
+    __source_changeset: Changeset
+
     def __new__(cls, *,
                 merge_type: Type,
-                source_changeset: Changeset):
+                source_changeset: Changeset) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__merge_type: Merge.Type      = merge_type
-        self.__source_changeset: Changeset = source_changeset
+        self.__merge_type       = merge_type
+        self.__source_changeset = source_changeset
         return self
 
     merge_type       = property(lambda self: self.__merge_type)
     source_changeset = property(lambda self: self.__source_changeset)
 
 
-@public
 @inherit_docs
 class Diff(base.Diff):
 
     @inherit_docs
-    class Status(base.Diff.Status):
+    class Status(base.Diff.Status):  # noqa D106
         ADDED   = "Added"
         DELETED = "Deleted"
         MOVED   = "Moved"
         CHANGED = "Changed"
 
+    __status: Diff.Status
+    __path: str
+    __source_path: str | None
+    __revision_id: int | None
+    __source_revision_id: int | None
+    __is_directory: bool
+    __size: int | None
+    __hash: str | None
+    __source_hash: str | None
+    __is_under_xlink: bool
+    __xlink: XLink | None
+    __base_xlink: XLink | None
+    __merges: list[Merge] | None
+    __is_item_fs_protection_changed: bool
+    __item_fs_protection: str
+    __repository: Repository
+    __modified_time: datetime | None
+    __created_by: Owner | None
+
     def __new__(cls, *,
                 status: Status,
                 path: str,
-                source_path: Optional[str],
-                revision_id: Optional[int],  # really optional ???
-                source_revision_id: Optional[int],
+                source_path: str | None,
+                revision_id: int | None,  # really optional ???
+                source_revision_id: int | None,
                 is_directory: bool,
-                size: Optional[int],  # really optional ???
-                hash: Optional[str],  # noqa A003  # "u0gJQzQnjLNUUHRI1+QQLg=="
-                source_hash: Optional[str],  # str # "u0gJQzQnjLNUUHRI1+QQLg=="
+                size: int | None,  # really optional ???
+                hash: str | None,  # noqa A003  # "u0gJQzQnjLNUUHRI1+QQLg=="
+                source_hash: str | None,  # str # "u0gJQzQnjLNUUHRI1+QQLg=="
                 is_under_xlink: bool,
-                xlink: Optional[XLink],
-                base_xlink: Optional[XLink],
-                merges: Optional[List[Merge]],
+                xlink: XLink | None,
+                base_xlink: XLink | None,
+                merges: list[Merge] | None,
                 is_item_fs_protection_changed: bool,
                 item_fs_protection: str,  # TODO change this to enum if possible
                 repository: Repository,
-                modified_time: Optional[datetime],
-                created_by: Optional[Owner]):
+                modified_time: datetime | None,
+                created_by: Owner | None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__status: Diff.Status                 = status
-        self.__path: str                           = path
-        self.__source_path: Optional[str]          = source_path
-        self.__revision_id: Optional[int]          = revision_id
-        self.__source_revision_id: Optional[int]   = source_revision_id
-        self.__is_directory: bool                  = is_directory
-        self.__size: Optional[int]                 = size
-        self.__hash: Optional[str]                 = hash
-        self.__source_hash: Optional[str]          = source_hash
-        self.__is_under_xlink: bool                = is_under_xlink
-        self.__xlink: Optional[XLink]              = xlink
-        self.__base_xlink: Optional[XLink]         = base_xlink
-        self.__merges: Optional[List[Merge]]       = merges
-        self.__is_item_fs_protection_changed: bool = is_item_fs_protection_changed
-        self.__item_fs_protection: str             = item_fs_protection
-        self.__repository: Repository              = repository
-        self.__modified_time: Optional[datetime]   = modified_time
-        self.__created_by: Optional[Owner]         = created_by
+        self.__status             = status
+        self.__path               = path
+        self.__source_path        = source_path
+        self.__revision_id        = revision_id
+        self.__source_revision_id = source_revision_id
+        self.__is_directory       = is_directory
+        self.__size               = size
+        self.__hash               = hash
+        self.__source_hash        = source_hash
+        self.__is_under_xlink     = is_under_xlink
+        self.__xlink              = xlink
+        self.__base_xlink         = base_xlink
+        self.__merges             = merges
+        self.__is_item_fs_protection_changed = is_item_fs_protection_changed
+        self.__item_fs_protection = item_fs_protection
+        self.__repository         = repository
+        self.__modified_time      = modified_time
+        self.__created_by         = created_by
         return self
 
     status             = property(lambda self: self.__status)
@@ -592,13 +728,15 @@ class Diff(base.Diff):
     created_by         = property(lambda self: self.__created_by)
 
 
-@public
 @inherit_docs
 class AffectedPaths(base.AffectedPaths):
 
-    def __new__(cls, *, paths: List[Path]):
+    __paths: list[Path]
+
+    def __new__(cls, *, paths: list[Path]) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__paths: List[Path] = paths
+        self.__paths = paths
         return self
 
     paths = property(lambda self: self.__paths)
