@@ -11,6 +11,10 @@ Contents
    :maxdepth: 2
 
    plasticscm.rst
+
+.. toctree::
+   :titlesonly:
+
    CHANGES.rst
 
 Indices and tables

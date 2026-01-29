@@ -1,24 +1,30 @@
 # Copyright (c) 2019 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
+from __future__ import annotations
+
+from typing import ParamSpec, TypeVar, Type, Any
+from collections.abc import Callable
 import functools
+import locale
 
-from public import public
+__all__ = ('PlasticError', 'PlasticHttpError')
 
 
-@public
 class PlasticError(Exception):
     """Plastic error."""
 
-    def __init__(self, error_message="", response_code=None, response_body=None):
-        """Init"""
-        if not isinstance(error_message, str):
+    def __init__(self, error_message: str | bytes = "",
+                 response_code: Any = None, response_body: Any = None) -> None:
+        """Initializer"""
+        if isinstance(error_message, bytes):
+            error_message = self._safe_decode(error_message)
+        else:
             try:
-                # if we receive str/bytes we try to convert to unicode/str
-                # to have consistent message types
-                error_message = error_message.decode()
+                error_message = str(error_message)
             except Exception:
-                pass
+                error_message = "<unprintable error message>"
+        assert isinstance(error_message, str)
         super().__init__(error_message)
         self.__error_message = error_message  # Parsed error message from PlasticSCM
         self.__response_code = response_code  # Http status code
@@ -28,15 +34,31 @@ class PlasticError(Exception):
     response_code = property(lambda self: self.__response_code)
     response_body = property(lambda self: self.__response_body)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Convert to string"""
         if self.__response_code is not None:
-            return "{}: {}".format(self.__response_code, self.__error_message)
+            return f"{self.__response_code}: {self.__error_message}"
         else:
-            return "{}".format(self.__error_message)
+            return f"{self.__error_message}"
+
+    @staticmethod
+    def _safe_decode(data: bytes) -> str:
+        try:
+            return data.decode("utf-8")
+        except UnicodeDecodeError:
+            pass
+        try:
+            enc = locale.getpreferredencoding(False)
+            return data.decode(enc)
+        except Exception:
+            pass
+        return data.decode("utf-8", errors="surrogateescape")
 
 
-def on_http_error(error: Exception):
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
+
+def on_http_error(error: Type[PlasticError]) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
     """Manage PlasticHttpError exceptions.
 
     This decorator function can be used to catch PlasticHttpError exceptions
@@ -46,9 +68,9 @@ def on_http_error(error: Exception):
         error: The exception type to raise -- must inherit from PlasticError
     """
 
-    def wrap(fun):
+    def wrap(fun: Callable[_P, _R]) -> Callable[_P, _R]:
         @functools.wraps(fun)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
             try:
                 return fun(*args, **kwargs)
             except PlasticHttpError as exc:
@@ -58,159 +80,9 @@ def on_http_error(error: Exception):
     return wrap
 
 
-@public
 class PlasticHttpError(PlasticError):
-    """ """
+    """Plastic HTTP error."""
 
-class GitlabAuthenticationError(PlasticError):
-    """ """
 
 class RedirectError(PlasticError):
-    """ """
-
-class GitlabParsingError(PlasticError):
-    """ """
-
-class GitlabConnectionError(PlasticError):
-    """ """
-
-class GitlabOperationError(PlasticError):
-    """ """
-
-class GitlabListError(GitlabOperationError):
-    """ """
-
-class GitlabGetError(GitlabOperationError):
-    """ """
-
-class GitlabCreateError(GitlabOperationError):
-    """ """
-
-class GitlabUpdateError(GitlabOperationError):
-    """ """
-
-class GitlabDeleteError(GitlabOperationError):
-    """ """
-
-class GitlabSetError(GitlabOperationError):
-    """ """
-
-class GitlabProtectError(GitlabOperationError):
-    """ """
-
-class GitlabTransferProjectError(GitlabOperationError):
-    """ """
-
-class GitlabProjectDeployKeyError(GitlabOperationError):
-    """ """
-
-class GitlabCancelError(GitlabOperationError):
-    """ """
-
-class GitlabPipelineCancelError(GitlabCancelError):
-    """ """
-
-class GitlabRetryError(GitlabOperationError):
-    """ """
-
-class GitlabBuildCancelError(GitlabCancelError):
-    """ """
-
-class GitlabBuildRetryError(GitlabRetryError):
-    """ """
-
-class GitlabBuildPlayError(GitlabRetryError):
-    """ """
-
-class GitlabBuildEraseError(GitlabRetryError):
-    """ """
-
-class GitlabJobCancelError(GitlabCancelError):
-    """ """
-
-class GitlabJobRetryError(GitlabRetryError):
-    """ """
-
-class GitlabJobPlayError(GitlabRetryError):
-    """ """
-
-class GitlabJobEraseError(GitlabRetryError):
-    """ """
-
-class GitlabPipelineRetryError(GitlabRetryError):
-    """ """
-
-class GitlabBlockError(GitlabOperationError):
-    """ """
-
-class GitlabUnblockError(GitlabOperationError):
-    """ """
-
-class GitlabDeactivateError(GitlabOperationError):
-    """ """
-
-class GitlabActivateError(GitlabOperationError):
-    """ """
-
-class GitlabSubscribeError(GitlabOperationError):
-    """ """
-
-class GitlabUnsubscribeError(GitlabOperationError):
-    """ """
-
-class GitlabMRForbiddenError(GitlabOperationError):
-    """ """
-
-class GitlabMRApprovalError(GitlabOperationError):
-    """ """
-
-class GitlabMRRebaseError(GitlabOperationError):
-    """ """
-
-class GitlabMRClosedError(GitlabOperationError):
-    """ """
-
-class GitlabMROnBuildSuccessError(GitlabOperationError):
-    """ """
-
-class GitlabTodoError(GitlabOperationError):
-    """ """
-
-class GitlabTimeTrackingError(GitlabOperationError):
-    """ """
-
-class GitlabUploadError(GitlabOperationError):
-    """ """
-
-class GitlabAttachFileError(GitlabOperationError):
-    """ """
-
-class GitlabCherryPickError(GitlabOperationError):
-    """ """
-
-class GitlabHousekeepingError(GitlabOperationError):
-    """ """
-
-class GitlabOwnershipError(GitlabOperationError):
-    """ """
-
-class GitlabSearchError(GitlabOperationError):
-    """ """
-
-class GitlabStopError(GitlabOperationError):
-    """ """
-
-class GitlabMarkdownError(GitlabOperationError):
-    """ """
-
-class GitlabVerifyError(GitlabOperationError):
-    """ """
-
-class GitlabRenderError(GitlabOperationError):
-    """ """
-
-class GitlabRepairError(GitlabOperationError):
-    """ """
-
-class GitlabLicenseError(GitlabOperationError):
-    """ """
+    """Plastic redirection error."""

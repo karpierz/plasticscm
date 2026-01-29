@@ -1,38 +1,49 @@
 # Copyright (c) 2019 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
-from typing import List, Tuple, Dict, Optional, Union
-from uuid import UUID
+from __future__ import annotations
+
+from typing import Any
+from typing_extensions import Self
 from pathlib import Path
+from uuid import UUID
 import json
 
-from public import public
 from dateutil.parser import isoparse
 
 from ..rest import REST
+from ..interfaces import APIProtocol  # noqa F401
 from .model import (RepId, Owner, Repository, Workspace, ObjectType, Branch,
                     Changeset, LocalInfo, RevisionInfo, RevisionHistoryItem,
                     Label, Change, OperationStatus, CheckinStatus, XLink,
                     Item, Merge, Diff, AffectedPaths)
 
+__all__ = ('API',)
 
-@public
-class API:
+
+class API:  # API(APIProtocol):
 
     #
     # API Interface.
     #
 
+    __api_url: str
+    __http_username: str | None
+    __http_password: str | None
+    __ssl_verify: bool | str | None
+    __timeout: float | None
+
     def __new__(cls,
                 url: str = "http://localhost:9090", *,
-                http_username: Optional[str] = None,
-                http_password: Optional[str] = None,
-                ssl_verify: bool = True,
-                timeout: Union[int, float] = None):
+                http_username: str | None = None,
+                http_password: str | None = None,
+                ssl_verify: bool | str | None = True,
+                timeout: int | float | None = None) -> Self:
+        """Constructor"""
         self = super().__new__(cls)
-        self.__api_url = "{}/api/v1".format(url)
+        self.__api_url = f"{url}/api/v1"
         self.__http_username = http_username
-        self.__http_username = http_password
+        self.__http_password = http_password
         self.__ssl_verify = ssl_verify   # Whether SSL certificates should be validated
         self.__timeout = float(timeout) if timeout is not None else None
         return self
@@ -40,15 +51,15 @@ class API:
     # Repositories
 
     @REST.GET("/repos")
-    def get_repositories(self) -> Tuple[Repository]:
-        url, action = self.get_repositories.REST
+    def get_repositories(self) -> tuple[Repository, ...]:
+        url, action = self.get_repositories.REST  # type: ignore[attr-defined]
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Repository(repo) for repo in response.json())
 
     @REST.POST("/repos")
-    def create_repository(self, repo_name: str, *, server: Optional[str] = None) -> Repository:
-        url, action = self.create_repository.REST
+    def create_repository(self, repo_name: str, *, server: str | None = None) -> Repository:
+        url, action = self.create_repository.REST  # type: ignore[attr-defined]
         params = {
             "name": repo_name,
         }
@@ -60,7 +71,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}")
     def get_repository(self, repo_name: str) -> Repository:
-        url, action = self.get_repository.REST
+        url, action = self.get_repository.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -68,7 +79,7 @@ class API:
 
     @REST.PUT("/repos/{repo_name}")
     def rename_repository(self, repo_name: str, repo_new_name: str) -> Repository:
-        url, action = self.rename_repository.REST
+        url, action = self.rename_repository.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
         params = {
             "name": repo_new_name,
@@ -79,12 +90,12 @@ class API:
 
     @REST.DELETE("/repos/{repo_name}")
     def delete_repository(self, repo_name: str) -> None:
-        url, action = self.delete_repository.REST
+        url, action = self.delete_repository.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
         action(self.__api_url + url,
                verify=self.__ssl_verify, timeout=self.__timeout)
 
-    def __json2Repository(self, repo: Dict):
+    def __json2Repository(self, repo: dict[Any, Any]) -> Repository:
         return Repository(name=repo["name"],
                           server=repo["server"],
                           owner=Owner(name=repo["owner"]["name"],
@@ -99,16 +110,16 @@ class API:
     # Workspaces
 
     @REST.GET("/wkspaces")
-    def get_workspaces(self) -> Tuple[Workspace]:
-        url, action = self.get_workspaces.REST
+    def get_workspaces(self) -> tuple[Workspace, ...]:
+        url, action = self.get_workspaces.REST  # type: ignore[attr-defined]
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Workspace(wkspace) for wkspace in response.json())
 
     @REST.POST("/wkspaces")
     def create_workspace(self, wkspace_name: str, wkspace_path: Path, *,
-                         repo_name: Optional[str] = None) -> Workspace:
-        url, action = self.create_workspace.REST
+                         repo_name: str | None = None) -> Workspace:
+        url, action = self.create_workspace.REST  # type: ignore[attr-defined]
         params = {
             "name": wkspace_name,
             "path": str(wkspace_path),
@@ -121,7 +132,7 @@ class API:
 
     @REST.GET("/wkspaces/{wkspace_name}")
     def get_workspace(self, wkspace_name: str) -> Workspace:
-        url, action = self.get_workspace.REST
+        url, action = self.get_workspace.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -129,7 +140,7 @@ class API:
 
     @REST.PATCH("/wkspaces/{wkspace_name}")                   # !!! was: -> Repository:
     def rename_workspace(self, wkspace_name: str, wkspace_new_name: str) -> Workspace:
-        url, action = self.rename_workspace.REST
+        url, action = self.rename_workspace.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         params = {
             "name": wkspace_new_name,
@@ -140,12 +151,12 @@ class API:
 
     @REST.DELETE("/wkspaces/{wkspace_name}")
     def delete_workspace(self, wkspace_name: str) -> None:
-        url, action = self.delete_workspace.REST
+        url, action = self.delete_workspace.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         action(self.__api_url + url,
                verify=self.__ssl_verify, timeout=self.__timeout)
 
-    def __json2Workspace(self, wkspace: Dict):
+    def __json2Workspace(self, wkspace: dict[Any, Any]) -> Workspace:
         return Workspace(name=wkspace["name"],
                          path=Path(wkspace["path"]),
                          machine_name=wkspace["machineName"],
@@ -154,8 +165,8 @@ class API:
     # Branches
 
     @REST.GET("/repos/{repo_name}/branches")
-    def get_branches(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Branch]:
-        url, action = self.get_branches.REST
+    def get_branches(self, repo_name: str, *, query: str | None = None) -> tuple[Branch, ...]:
+        url, action = self.get_branches.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
         params = {}
         if query is not None:
@@ -169,9 +180,9 @@ class API:
                       repo_name: str,
                       branch_name: str,
                       origin_type: ObjectType,
-                      origin: Union[str, int], *,
+                      origin: str | int, *,
                       top_level: bool = False) -> Branch:
-        url, action = self.create_branch.REST
+        url, action = self.create_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
         params = {
             "name":       branch_name.strip("/"),
@@ -185,7 +196,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}")
     def get_branch(self, repo_name: str, branch_name: str) -> Branch:
-        url, action = self.get_branch.REST
+        url, action = self.get_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"))
         response = action(self.__api_url + url,
@@ -194,7 +205,7 @@ class API:
 
     @REST.PATCH("/repos/{repo_name}/branches/{branch_name}")
     def rename_branch(self, repo_name: str, branch_name: str, branch_new_name: str) -> Branch:
-        url, action = self.rename_branch.REST
+        url, action = self.rename_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"))
         params = {
@@ -206,13 +217,13 @@ class API:
 
     @REST.DELETE("/repos/{repo_name}/branches/{branch_name}")
     def delete_branch(self, repo_name: str, branch_name: str) -> None:
-        url, action = self.delete_branch.REST
+        url, action = self.delete_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"))
         action(self.__api_url + url,
                verify=self.__ssl_verify, timeout=self.__timeout)
 
-    def __json2Branch(self, branch: Dict):
+    def __json2Branch(self, branch: dict[Any, Any]) -> Branch:
         return Branch(  # ???
                       name=branch["name"],
                       id=branch["id"],
@@ -229,8 +240,8 @@ class API:
     # Labels
 
     @REST.GET("/repos/{repo_name}/labels")
-    def get_labels(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Label]:
-        url, action = self.get_labels.REST
+    def get_labels(self, repo_name: str, *, query: str | None = None) -> tuple[Label, ...]:
+        url, action = self.get_labels.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
         params = {}
         if query is not None:
@@ -241,10 +252,10 @@ class API:
 
     @REST.POST("/repos/{repo_name}/labels")
     def create_label(self, repo_name: str, label_name: str, changeset_id: int, *,
-                     comment: Optional[str] = None, apply_to_xlinks: bool = False) -> Label:
-        url, action = self.create_label.REST
+                     comment: str | None = None, apply_to_xlinks: bool = False) -> Label:
+        url, action = self.create_label.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
-        params = {
+        params: dict[str, Any] = {
             "name":          label_name,
             "changeset":     changeset_id,
             "applyToXlinks": apply_to_xlinks,
@@ -257,7 +268,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}/labels/{label_name}")
     def get_label(self, repo_name: str, label_name: str) -> Label:
-        url, action = self.get_label.REST
+        url, action = self.get_label.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name, label_name=label_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -265,7 +276,7 @@ class API:
 
     @REST.PATCH("/repos/{repo_name}/labels/{label_name}")
     def rename_label(self, repo_name: str, label_name: str, label_new_name: str) -> Label:
-        url, action = self.rename_label.REST
+        url, action = self.rename_label.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name, label_name=label_name)
         params = {
             "name": label_new_name,
@@ -276,12 +287,12 @@ class API:
 
     @REST.DELETE("/repos/{repo_name}/labels/{label_name}")
     def delete_label(self, repo_name: str, label_name: str) -> None:
-        url, action = self.delete_label.REST
+        url, action = self.delete_label.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name, label_name=label_name)
         action(self.__api_url + url,
                verify=self.__ssl_verify, timeout=self.__timeout)
 
-    def __json2Label(self, label: Dict):
+    def __json2Label(self, label: dict[Any, Any]) -> Label:
         return Label(  # ???
                      name=label["name"],
                      id=label["id"],
@@ -297,8 +308,8 @@ class API:
     # Changesets
 
     @REST.GET("/repos/{repo_name}/changesets")
-    def get_changesets(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Changeset]:
-        url, action = self.get_changesets.REST
+    def get_changesets(self, repo_name: str, *, query: str | None = None) -> tuple[Changeset, ...]:
+        url, action = self.get_changesets.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name)
         params = {}
         if query is not None:
@@ -309,8 +320,8 @@ class API:
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/changesets")
     def get_changesets_in_branch(self, repo_name: str, branch_name: str, *,
-                                 query: Optional[str] = None) -> Tuple[Changeset]:
-        url, action = self.get_changesets_in_branch.REST
+                                 query: str | None = None) -> tuple[Changeset, ...]:
+        url, action = self.get_changesets_in_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"))
         params = {}
@@ -322,13 +333,13 @@ class API:
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}")
     def get_changeset(self, repo_name: str, changeset_id: int) -> Changeset:
-        url, action = self.get_changeset.REST
+        url, action = self.get_changeset.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name, changeset_id=changeset_id)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2Changeset(response.json())
 
-    def __json2Changeset(self, chset: Dict):
+    def __json2Changeset(self, chset: dict[Any, Any]) -> Changeset:
         return Changeset(  # ???
                          id=chset["id"],
                          parent_id=chset["parentId"],
@@ -345,8 +356,9 @@ class API:
 
     @REST.GET("/wkspaces/{wkspace_name}/changes")
     def get_pending_changes(self, wkspace_name: str, *,
-                            change_types: List[Change.Type] = [Change.Type.ALL]) -> Tuple[Change]:
-        url, action = self.get_pending_changes.REST
+                            change_types: list[Change.Type] | None = None) -> tuple[Change, ...]:
+        if change_types is None: change_types = [Change.Type.ALL]
+        url, action = self.get_pending_changes.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         params = {
             "types": ",".join(chtype.value for chtype in change_types),
@@ -357,8 +369,8 @@ class API:
 
     @REST.DELETE("/wkspaces/{wkspace_name}/changes")
     def undo_pending_changes(self, wkspace_name: str,
-                             paths: List[Union[str, Path]]) -> AffectedPaths:
-        url, action = self.undo_pending_changes.REST
+                             paths: list[str | Path]) -> AffectedPaths:
+        url, action = self.undo_pending_changes.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         params = {
             "paths": [str(path) for path in paths],
@@ -367,7 +379,7 @@ class API:
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2AffectedPaths(response.json())
 
-    def __json2Change(self, change: Dict):
+    def __json2Change(self, change: dict[Any, Any]) -> Change:
         return Change(  # ???
                       changes=change["changes"],
                       path=Path(change["path"]),
@@ -402,7 +414,7 @@ class API:
 
     @REST.GET("/wkspaces/{wkspace_name}/update")
     def get_workspace_update_status(self, wkspace_name: str) -> OperationStatus:
-        url, action = self.get_workspace_update_status.REST
+        url, action = self.get_workspace_update_status.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -410,7 +422,7 @@ class API:
 
     @REST.POST("/wkspaces/{wkspace_name}/update")
     def update_workspace(self, wkspace_name: str) -> OperationStatus:
-        url, action = self.update_workspace.REST
+        url, action = self.update_workspace.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -418,7 +430,7 @@ class API:
 
     @REST.GET("/wkspaces/{wkspace_name}/switch")
     def get_workspace_switch_status(self, wkspace_name: str) -> OperationStatus:
-        url, action = self.get_workspace_switch_status.REST
+        url, action = self.get_workspace_switch_status.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -427,8 +439,8 @@ class API:
     @REST.POST("/wkspaces/{wkspace_name}/switch")
     def switch_workspace(self, wkspace_name: str,
                          object_type: ObjectType,
-                         object: Union[str, int]) -> OperationStatus:  # noqa A002
-        url, action = self.switch_workspace.REST
+                         object: str | int) -> OperationStatus:  # noqa A002
+        url, action = self.switch_workspace.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         params = {
             "objectType": object_type.value,
@@ -438,7 +450,7 @@ class API:
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2OperationStatus(response.json())
 
-    def __json2OperationStatus(self, stat: Dict):
+    def __json2OperationStatus(self, stat: dict[Any, Any]) -> OperationStatus:
         return OperationStatus(status=stat.get("status"),
                                message=stat.get("message"),
                                total_files=stat.get("totalFiles"),
@@ -450,7 +462,7 @@ class API:
 
     @REST.GET("/wkspaces/{wkspace_name}/checkin")
     def get_workspace_checkin_status(self, wkspace_name: str) -> CheckinStatus:
-        url, action = self.get_workspace_checkin_status.REST
+        url, action = self.get_workspace_checkin_status.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -458,12 +470,12 @@ class API:
 
     @REST.POST("/wkspaces/{wkspace_name}/checkin")
     def checkin_workspace(self, wkspace_name: str, *,
-                          paths: Optional[List[str]] = None,
-                          comment: Optional[str] = None,
+                          paths: list[str] | None = None,
+                          comment: str | None = None,
                           recurse: bool = True) -> CheckinStatus:
-        url, action = self.checkin_workspace.REST
+        url, action = self.checkin_workspace.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name)
-        params = {
+        params: dict[str, Any] = {
             "recurse": recurse,
         }
         if paths is not None:
@@ -474,7 +486,7 @@ class API:
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2CheckinStatus(response.json())
 
-    def __json2CheckinStatus(self, stat: Dict):
+    def __json2CheckinStatus(self, stat: dict[Any, Any]) -> CheckinStatus:
         return CheckinStatus(status=stat.get("status"),
                              message=stat.get("message"),
                              total_size=stat.get("totalSize"),
@@ -484,7 +496,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}/contents/{item_path}")
     def get_item(self, repo_name: str, item_path: str) -> Item:
-        url, action = self.get_item.REST
+        url, action = self.get_item.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
@@ -493,7 +505,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/contents/{item_path}")
     def get_item_in_branch(self, repo_name: str, branch_name: str, item_path: str) -> Item:
-        url, action = self.get_item_in_branch.REST
+        url, action = self.get_item_in_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"),
                          item_path=item_path.strip("/"))
@@ -503,7 +515,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/contents/{item_path}")
     def get_item_in_changeset(self, repo_name: str, changeset_id: int, item_path: str) -> Item:
-        url, action = self.get_item_in_changeset.REST
+        url, action = self.get_item_in_changeset.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
                          item_path=item_path.strip("/"))
@@ -513,7 +525,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}/labels/{label_name}/contents/{item_path}")
     def get_item_in_label(self, repo_name: str, label_name: str, item_path: str) -> Item:
-        url, action = self.get_item_in_label.REST
+        url, action = self.get_item_in_label.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          label_name=label_name,
                          item_path=item_path.strip("/"))
@@ -523,7 +535,7 @@ class API:
 
     @REST.GET("/repos/{repo_name}/revisions/{revision_spec}")
     def get_item_revision(self, repo_name: str, revision_spec: str) -> Item:
-        url, action = self.get_item_revision.REST
+        url, action = self.get_item_revision.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          revision_spec=revision_spec.strip("/"))
         response = action(self.__api_url + url,
@@ -533,8 +545,8 @@ class API:
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/history/{item_path}")
     def get_item_revision_history_in_branch(self, repo_name: str,
                                             branch_name: str, item_path: str) \
-                                            -> Tuple[RevisionHistoryItem]:
-        url, action = self.get_item_revision_history_in_branch.REST
+                                            -> tuple[RevisionHistoryItem, ...]:
+        url, action = self.get_item_revision_history_in_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"),
                          item_path=item_path.strip("/"))
@@ -545,8 +557,8 @@ class API:
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/history/{item_path}")
     def get_item_revision_history_in_changeset(self, repo_name: str,
                                                changeset_id: int, item_path: str) \
-                                               -> Tuple[RevisionHistoryItem]:
-        url, action = self.get_item_revision_history_in_changeset.REST
+                                               -> tuple[RevisionHistoryItem, ...]:
+        url, action = self.get_item_revision_history_in_changeset.REST  # type:ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
                          item_path=item_path.strip("/"))
@@ -557,8 +569,8 @@ class API:
     @REST.GET("/repos/{repo_name}/labels/{label_name}/history/{item_path}")
     def get_item_revision_history_in_label(self, repo_name: str,
                                            label_name: str, item_path: str) \
-                                           -> Tuple[RevisionHistoryItem]:
-        url, action = self.get_item_revision_history_in_label.REST
+                                           -> tuple[RevisionHistoryItem, ...]:
+        url, action = self.get_item_revision_history_in_label.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          label_name=label_name,
                          item_path=item_path.strip("/"))
@@ -566,13 +578,13 @@ class API:
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2RevisionHistoryItem(item) for item in response.json())
 
-    def __json2Item(self, item: Dict):
+    def __json2Item(self, item: dict[Any, Any]) -> Item:
         return Item(  # ???
                     type=next(itype for itype in Item.Type
                               if itype.value == item["type"]),
                     name=item["name"],
                     path=item["path"],
-                    revision_id=item.get("revisionId"),  # Optional ???
+                    revision_id=item.get("revisionId"),  # optional ???
                     size=item["size"],
                     is_under_xlink=item.get("isUnderXlink"),
                     content=item.get("content"),
@@ -587,7 +599,7 @@ class API:
                     repository=self.__json2Repository(item["repository"])
                     if "repository" in item else None)
 
-    def __json2RevisionHistoryItem(self, rhitem: Dict):
+    def __json2RevisionHistoryItem(self, rhitem: dict[Any, Any]) -> RevisionHistoryItem:
         return RevisionHistoryItem(  # ???
                                    type=rhitem["type"],
                                    revision_id=rhitem["revisionId"],
@@ -608,8 +620,8 @@ class API:
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/diff/{source_changeset_id}")
     def diff_changesets(self, repo_name: str,
-                        changeset_id: int, source_changeset_id: int) -> Tuple[Diff]:
-        url, action = self.diff_changesets.REST
+                        changeset_id: int, source_changeset_id: int) -> tuple[Diff, ...]:
+        url, action = self.diff_changesets.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id,
                          source_changeset_id=source_changeset_id)
@@ -618,8 +630,8 @@ class API:
         return tuple(self.__json2Diff(diff) for diff in response.json())
 
     @REST.GET("/repos/{repo_name}/changesets/{changeset_id}/diff")
-    def diff_changeset(self, repo_name: str, changeset_id: int) -> Tuple[Diff]:
-        url, action = self.diff_changeset.REST
+    def diff_changeset(self, repo_name: str, changeset_id: int) -> tuple[Diff, ...]:
+        url, action = self.diff_changeset.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          changeset_id=changeset_id)
         response = action(self.__api_url + url,
@@ -627,15 +639,15 @@ class API:
         return tuple(self.__json2Diff(diff) for diff in response.json())
 
     @REST.GET("/repos/{repo_name}/branches/{branch_name}/diff")
-    def diff_branch(self, repo_name: str, branch_name: str) -> Tuple[Diff]:
-        url, action = self.diff_branch.REST
+    def diff_branch(self, repo_name: str, branch_name: str) -> tuple[Diff, ...]:
+        url, action = self.diff_branch.REST  # type: ignore[attr-defined]
         url = url.format(repo_name=repo_name,
                          branch_name=branch_name.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return tuple(self.__json2Diff(diff) for diff in response.json())
 
-    def __json2Diff(self, diff: Dict):
+    def __json2Diff(self, diff: dict[Any, Any]) -> Diff:
         return Diff(  # ???
                     status=next(item for item in Diff.Status
                                 if item.value == diff["status"]),
@@ -648,12 +660,12 @@ class API:
                     hash=diff.get("hash"),
                     source_hash=diff.get("srcHash"),
                     is_under_xlink=diff["isUnderXlink"],
-                    xlink=XLink(changeset_id=diff["xlink"]["changesetId"],  # Optional ???
+                    xlink=XLink(changeset_id=diff["xlink"]["changesetId"],  # optional ???
                                 changeset_guid=diff["xlink"]["changesetGuid"],
                                 repo_name=diff["xlink"]["repository"],
                                 server=diff["xlink"]["server"])
                     if "xlink" in diff else None,
-                    base_xlink=XLink(changeset_id=diff["baseXlink"]["changesetId"],  # Optional ???
+                    base_xlink=XLink(changeset_id=diff["baseXlink"]["changesetId"],  # optional ???
                                      changeset_guid=diff["baseXlink"]["changesetGuid"],
                                      repo_name=diff["baseXlink"]["repository"],
                                      server=diff["baseXlink"]["server"])
@@ -678,7 +690,7 @@ class API:
     def add_workspace_item(self, wkspace_name: str, item_path: str, *,
                            add_parents: bool = True, checkout_parent: bool = True,
                            recurse: bool = True) -> AffectedPaths:
-        url, action = self.add_workspace_item.REST
+        url, action = self.add_workspace_item.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name, item_path=item_path.strip("/"))
         params = {
             "addPrivateParents": add_parents,
@@ -691,7 +703,7 @@ class API:
 
     @REST.PUT("/wkspaces/{wkspace_name}/content/{item_path}")
     def checkout_workspace_item(self, wkspace_name: str, item_path: str) -> AffectedPaths:
-        url, action = self.checkout_workspace_item.REST
+        url, action = self.checkout_workspace_item.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name, item_path=item_path.strip("/"))
         response = action(self.__api_url + url,
                           verify=self.__ssl_verify, timeout=self.__timeout)
@@ -700,7 +712,7 @@ class API:
     @REST.PATCH("/wkspaces/{wkspace_name}/content/{item_path}")
     def move_workspace_item(self, wkspace_name: str, item_path: str,
                             dest_item_path: str) -> AffectedPaths:
-        url, action = self.move_workspace_item.REST
+        url, action = self.move_workspace_item.REST  # type: ignore[attr-defined]
         url = url.format(wkspace_name=wkspace_name, item_path=item_path.strip("/"))
         params = {
             "destination": dest_item_path,
@@ -709,5 +721,5 @@ class API:
                           verify=self.__ssl_verify, timeout=self.__timeout)
         return self.__json2AffectedPaths(response.json())
 
-    def __json2AffectedPaths(self, paths: Dict):
+    def __json2AffectedPaths(self, paths: dict[Any, Any]) -> AffectedPaths:
         return AffectedPaths(paths=[Path(path) for path in paths["affectedPaths"]])

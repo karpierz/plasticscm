@@ -3,30 +3,38 @@
 
 """All operations will be performed in the machine hosting the API server."""
 
-from typing    import List, Tuple, Optional, Union
-from types     import ModuleType
-from pathlib   import Path
+from __future__ import annotations
+
+from typing_extensions import Self
+from types import ModuleType
+from pathlib import Path
 from importlib import import_module
 import shutil
 
-from public import public
-
+from .interfaces import APIProtocol
 from .model import (Repository, Workspace, ObjectType, Branch, Label, Changeset,
                     RevisionHistoryItem, Change, OperationStatus, CheckinStatus,
                     Item, Diff, AffectedPaths)
 from . import config
 
+__all__ = ('Plastic',)
+
 _ = __doc__
 
 
-@public
 class Plastic:
     """PlasticSCM client API."""
 
+    __slots__ = ('__api_version', '__api', '__model')
+
+    __api_version: str
+    __api: APIProtocol
+    __model: ModuleType
+
     @classmethod
     def from_config(cls,
-                    plastic_id: Optional[str] = None,
-                    config_files: Optional[List[str]] = None) -> 'Plastic':
+                    plastic_id: str | None = None,
+                    config_files: list[Path | str] | None = None) -> Self:
         """Create a new PlasticSCM API wrapper from configuration files.
 
         Args:
@@ -39,8 +47,6 @@ class Plastic:
         Raises:
             plasticscm.config.PlasticDataError: If the configuration is not correct.
         """
-        if config_files is not None:
-            config_files = [Path(file) for file in config_files]
         config_parser = config.PlasticConfigParser(plastic_id=plastic_id,
                                                    config_files=config_files)
         return cls(config_parser.url,
@@ -52,11 +58,11 @@ class Plastic:
 
     def __new__(cls,
                 url: str = "http://localhost:9090", *,
-                http_username: Optional[str] = None,
-                http_password: Optional[str] = None,
-                ssl_verify: bool = True,
-                timeout: Union[int, float] = None,
-                api_version: Union[str, int, float] = "1"):
+                http_username: str | None = None,
+                http_password: str | None = None,
+                ssl_verify: bool | str | None = True,
+                timeout: int | float | None = None,
+                api_version: str | int | float = "1") -> Self:
         """Instantiates a new PlasticSCM API wrapper.
 
         Args:
@@ -67,11 +73,11 @@ class Plastic:
 
         """
         self = super().__new__(cls)
-        self.__api_version = api_version = str(api_version)
         # Headers that will be used in request to PlasticSCM
         # self.headers = {"User-Agent": "%s/%s" % (__title__, __version__)}
-        api   = import_module(".v{}.api".format(api_version),   __package__)
-        model = import_module(".v{}.model".format(api_version), __package__)
+        api:   ModuleType = import_module(f".v{api_version}.api",   __package__)
+        model: ModuleType = import_module(f".v{api_version}.model", __package__)
+        self.__api_version = str(api_version)
         self.__api = api.API(url,
                              http_username=http_username,
                              http_password=http_password,
@@ -106,7 +112,7 @@ class Plastic:
 
     # Repositories
 
-    def get_repositories(self) -> Tuple[Repository]:
+    def get_repositories(self) -> tuple[Repository, ...]:
         """Gets all available repositories of a server, along with their information.
 
         Returns:
@@ -114,7 +120,7 @@ class Plastic:
         """
         return self.__api.get_repositories()
 
-    def create_repository(self, repo_name: str, *, server: Optional[str] = None) -> Repository:
+    def create_repository(self, repo_name: str, *, server: str | None = None) -> Repository:
         """Create a repository in a server.
 
         Args:
@@ -165,7 +171,7 @@ class Plastic:
 
     # Workspaces
 
-    def get_workspaces(self) -> Tuple[Workspace]:
+    def get_workspaces(self) -> tuple[Workspace, ...]:
         """Gets all registered workspaces, along with their information.
 
         Returns:
@@ -174,7 +180,7 @@ class Plastic:
         return self.__api.get_workspaces()
 
     def create_workspace(self, wkspace_name: str, wkspace_path: Path, *,
-                         repo_name: Optional[str] = None) -> Workspace:
+                         repo_name: str | None = None) -> Workspace:
         """Create a new workspace.
 
         Args:
@@ -223,7 +229,7 @@ class Plastic:
 
     # Branches
 
-    def get_branches(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Branch]:
+    def get_branches(self, repo_name: str, *, query: str | None = None) -> tuple[Branch, ...]:
         """Gets branches in a repository, along with their information.
 
         Args:
@@ -240,7 +246,7 @@ class Plastic:
                       repo_name: str,
                       branch_name: str,
                       origin_type: ObjectType,
-                      origin: Union[str, int], *,
+                      origin: str | int, *,
                       top_level: bool = False) -> Branch:
         """Create a new branch.
 
@@ -310,7 +316,7 @@ class Plastic:
 
     # Labels
 
-    def get_labels(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Label]:
+    def get_labels(self, repo_name: str, *, query: str | None = None) -> tuple[Label, ...]:
         """Gets labels in a repository, along with their information.
 
         Args:
@@ -324,7 +330,7 @@ class Plastic:
         return self.__api.get_labels(repo_name, query=query)
 
     def create_label(self, repo_name: str, label_name: str, changeset_id: int, *,
-                     comment: Optional[str] = None, apply_to_xlinks: bool = False) -> Label:
+                     comment: str | None = None, apply_to_xlinks: bool = False) -> Label:
         """Create a new label and applies it to a given changeset.
 
         Args:
@@ -381,7 +387,7 @@ class Plastic:
 
     # Changesets
 
-    def get_changesets(self, repo_name: str, *, query: Optional[str] = None) -> Tuple[Changeset]:
+    def get_changesets(self, repo_name: str, *, query: str | None = None) -> tuple[Changeset, ...]:
         """Gets changesets in a repository, along with their information.
 
         Args:
@@ -395,7 +401,7 @@ class Plastic:
         return self.__api.get_changesets(repo_name, query=query)
 
     def get_changesets_in_branch(self, repo_name: str, branch_name: str, *,
-                                 query: Optional[str] = None) -> Tuple[Changeset]:
+                                 query: str | None = None) -> tuple[Changeset, ...]:
         """Gets changesets in a given branch, along with their information.
 
         Args:
@@ -427,7 +433,7 @@ class Plastic:
     # Changes
 
     def get_pending_changes(self, wkspace_name: str, *,
-                            change_types: Optional[List[Change.Type]] = None) -> Tuple[Change]:
+                            change_types: list[Change.Type] | None = None) -> tuple[Change, ...]:
         """Gets pending changes in a workspace, along with their information.
 
         Args:
@@ -445,7 +451,7 @@ class Plastic:
             return self.__api.get_pending_changes(wkspace_name, change_types=change_types)
 
     def undo_pending_changes(self, wkspace_name: str,
-                             paths: List[Union[str, Path]]) -> AffectedPaths:
+                             paths: list[str | Path]) -> AffectedPaths:
         """Deletes the pending changes in a workspace.
 
         Paths must be a list of paths representing files with pending changes
@@ -497,7 +503,7 @@ class Plastic:
         return self.__api.get_workspace_switch_status(wkspace_name)
 
     def switch_workspace(self, wkspace_name: str,
-                         object_type: ObjectType, object: Union[str, int]) \
+                         object_type: ObjectType, object: str | int) \
             -> OperationStatus:  # noqa A002
         """Switch the workspace to a branch, changeset or label.
 
@@ -529,8 +535,8 @@ class Plastic:
         return self.__api.get_workspace_checkin_status(wkspace_name)
 
     def checkin_workspace(self, wkspace_name: str, *,
-                          paths: Optional[List[str]] = None,
-                          comment: Optional[str] = None,
+                          paths: list[str] | None = None,
+                          comment: str | None = None,
                           recurse: bool = True) -> CheckinStatus:
         """Stores changes in the repository.
 
@@ -619,7 +625,7 @@ class Plastic:
         return self.__api.get_item_revision(repo_name, revision_spec)
 
     def get_item_revision_history_in_branch(self, repo_name: str, branch_name: str,
-                                            item_path: str) -> Tuple[RevisionHistoryItem]:
+                                            item_path: str) -> tuple[RevisionHistoryItem, ...]:
         """Gets the item's revision history for a given branch.
 
         Args:
@@ -635,7 +641,7 @@ class Plastic:
         return self.__api.get_item_revision_history_in_branch(repo_name, branch_name, item_path)
 
     def get_item_revision_history_in_changeset(self, repo_name: str, changeset_id: int,
-                                               item_path: str) -> Tuple[RevisionHistoryItem]:
+                                               item_path: str) -> tuple[RevisionHistoryItem, ...]:
         """Gets the item's revision history for a given changeset.
 
         Args:
@@ -650,7 +656,7 @@ class Plastic:
                                                                  item_path)
 
     def get_item_revision_history_in_label(self, repo_name: str, label_name: str,
-                                           item_path: str) -> Tuple[RevisionHistoryItem]:
+                                           item_path: str) -> tuple[RevisionHistoryItem, ...]:
         """Gets the item's revision history for a given label.
 
         Args:
@@ -666,7 +672,7 @@ class Plastic:
     # Diff
 
     def diff_changesets(self, repo_name: str,
-                        changeset_id: int, source_changeset_id: int) -> Tuple[Diff]:
+                        changeset_id: int, source_changeset_id: int) -> tuple[Diff, ...]:
         """Gets the differences between the source changeset and the desired changeset.
 
         Args:
@@ -680,7 +686,7 @@ class Plastic:
         """
         return self.__api.diff_changesets(repo_name, changeset_id, source_changeset_id)
 
-    def diff_changeset(self, repo_name: str, changeset_id: int) -> Tuple[Diff]:
+    def diff_changeset(self, repo_name: str, changeset_id: int) -> tuple[Diff, ...]:
         """Gets the differences between the parent changeset and the desired changeset.
 
         Args:
@@ -693,7 +699,7 @@ class Plastic:
         """
         return self.__api.diff_changeset(repo_name, changeset_id)
 
-    def diff_branch(self, repo_name: str, branch_name: str) -> Tuple[Diff]:
+    def diff_branch(self, repo_name: str, branch_name: str) -> tuple[Diff, ...]:
         """Gets the differences between the current branch and the desired branch.
 
         Args:

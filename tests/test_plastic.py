@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Zlib
 
 import unittest
+from unittest import mock
 from typing import List, Tuple, Optional, Union
 from functools import partial
 from pathlib import Path
@@ -2954,8 +2955,8 @@ class TestPlastic(unittest.TestCase):
     def request_mock(url, request, test=None):
         return TestPlastic.response(test)
 
-    @classmethod
-    def select_tests_for_tag(cls, tag, test_table=None):
+    @classmethod  # currently not in use
+    def select_tests_for_tag(cls, tag, test_table=None):  # pragma: no cover
         return (test for test in test_table or cls.test_table
                 if test.get("tag") == tag)
 
@@ -2963,6 +2964,10 @@ class TestPlastic(unittest.TestCase):
     def select_tests_for_method(cls, method_name, test_table=None):
         return (test for test in test_table or cls.test_table
                 if test["method"] == method_name)
+
+    @classmethod
+    def patch_which(cls, value):
+        return mock.patch("shutil.which", return_value=value)
 
     def do_test(self, test, mock=None):
         func = getattr(self.pl, test["method"])
@@ -2977,6 +2982,7 @@ class TestPlastic(unittest.TestCase):
                 self.assertIsNone(ret)
             else:
                 self.assertIsInstance(ret, rtype)
+        else: pass  # pragma: no cover
         return ret
 
     def test(self):
@@ -2999,10 +3005,16 @@ class TestPlastic(unittest.TestCase):
 
     # Utils
 
-    # def test_get_cm_location(self):
-    #     self.assertIsInstance(self.pl.get_cm_location(), Path)
-    #     # with self.assertRaises(FileNotFoundError):
-    #     #     ret = self.pl.get_cm_location()
+    def test_get_cm_location_exists(self):
+        with self.patch_which("/usr/bin/cm"):
+            ret = self.pl.get_cm_location()
+            self.assertIsInstance(ret, Path)
+            self.assertEqual(ret, Path("/usr/bin/cm"))
+
+    def test_get_cm_location_nonexists(self):
+        with self.patch_which(None):
+            with self.assertRaises(FileNotFoundError):
+                ret = self.pl.get_cm_location()
 
     # Repositories
 

@@ -1,13 +1,14 @@
 # Copyright (c) 2019 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
-import inspect
+from __future__ import annotations
+
 import enum
+import inspect
 
-from public import public
+__all__ = ('inherit_docs',)
 
 
-@public
 def inherit_docs(cls: type) -> type:
     """
     Inherit attributes from the parent classes.
@@ -42,7 +43,7 @@ def inherit_docs(cls: type) -> type:
         else:
             try:
                 attr.__doc__ = parent_doc
-            except Exception:  # some __doc__'s are not writable
+            except Exception:  # some __doc__'s are not writable  # pragma: no cover
                 pass
         """
         if isinstance(attr, types.FunctionType):
